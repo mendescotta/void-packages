@@ -6,7 +6,7 @@ build_style=cmake
 configure_args="-DWEBP_BUILD_EXTRAS=OFF -DWEBP_BUILD_VWEBP=OFF
  -DBUILD_SHARED_LIBS=ON -DCMAKE_SKIP_INSTALL_RPATH=ON"
 hostmakedepends="pkg-config"
-makedepends="giflib-devel libpng-devel libfreeglut-devel
+makedepends="giflib-devel libpng-devel
  $(vopt_if tiff tiff-devel)"
 short_desc="WebP image format"
 maintainer="Orphaned <orphan@voidlinux.org>"
