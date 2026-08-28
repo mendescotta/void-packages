@@ -1,14 +1,13 @@
 # Template file for 'gdm'
 pkgname=gdm
-version=48.0
-revision=2
+version=50.2
+revision=1
 build_helper="gir"
 build_style=meson
 configure_args="
  -Ddefault-pam-config=arch -Dat-spi-registryd-dir=/usr/libexec
- -Dtcp-wrappers=false -Dscreenshot-dir=/var/lib/gdm/greeter
- -Dplymouth=enabled -Dxauth-dir=/run/gdm -Dpid-file=/run/gdm/gdm.pid
- -Dsystemd-journal=false -Dinitial-vt=7 -Dwayland-support=true
+ -Dplymouth=enabled -Dpid-file=/run/gdm/gdm.pid
+ -Dsystemd-journal=false -Dinitial-vt=7 -Dx11-support=true
  -Dselinux=disabled -Dlibaudit=disabled -Dgdm-xsession=true
  -Ddefault-path=/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/sbin:/sbin:/bin
  -Dsystemdsystemunitdir=/usr/lib/systemd/system
@@ -29,10 +28,11 @@ homepage="https://wiki.gnome.org/Projects/GDM"
 #changelog="https://gitlab.gnome.org/GNOME/gdm/-/raw/gnome-48/NEWS"
 changelog="https://gitlab.gnome.org/GNOME/gdm/-/raw/main/NEWS"
 distfiles="${GNOME_SITE}/gdm/${version%%.*}/gdm-${version}.tar.xz"
-checksum=1bc06daff093ec7b5e37ecb4f92e5da3474a1b1ba076edb9151ee967d1c30adf
+checksum=8a4679e47cddfe8b0a1bd9d3836042deb68fb3e1b0e7e62dfd0631dc5b6fc541
 
 conf_files="
 	/etc/gdm/custom.conf
+	/etc/dconf/profile/gdm
 	/etc/pam.d/gdm-autologin
 	/etc/pam.d/gdm-fingerprint
 	/etc/pam.d/gdm-launch-environment
@@ -42,8 +42,15 @@ make_dirs="
 	/usr/share/gdm/env.d 0755 root root
 	/etc/gdm/env.d 0755 root root"
 # Create the 'gdm' system user/group.
-system_accounts="gdm"
+# 'gdm-greeter' is the preallocated fallback account GDM's dynamic user
+# store uses for the greeter session on systems without systemd-userdbd
+# (e.g. elogind); without it gdm segfaults in libpcre2 (missing dconf
+# profile below) and then fails with "not preallocated and system lacks
+# userdb", crash-looping.
+system_accounts="gdm gdm-greeter"
 gdm_homedir="/var/lib/gdm"
+gdm-greeter_homedir="/var/lib/gdm/greeter"
+gdm-greeter_descr="gdm greeter unprivileged user"
 
 # Package build options
 build_options="gir"
@@ -59,6 +66,16 @@ post_install() {
 			vsed -i "s/pam_systemd\.so/pam_elogind.so/" "$f"
 		fi
 	done
+
+	# Without this profile, the greeter's dconf lookups against the
+	# missing 'gdm' system-db segfault in libpcre2 instead of falling
+	# back cleanly.
+	vmkdir etc/dconf/profile
+	cat > "${DESTDIR}/etc/dconf/profile/gdm" <<-EOF
+		user-db:user
+		system-db:gdm
+		file-db:/usr/share/gdm/greeter-dconf-defaults
+	EOF
 
 	# runit service
 	vsv gdm
