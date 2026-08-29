@@ -42,15 +42,19 @@ make_dirs="
 	/usr/share/gdm/env.d 0755 root root
 	/etc/gdm/env.d 0755 root root"
 # Create the 'gdm' system user/group.
-# 'gdm-greeter' is the preallocated fallback account GDM's dynamic user
+# 'gdmgreeter' is the preallocated fallback account GDM's dynamic user
 # store uses for the greeter session on systems without systemd-userdbd
 # (e.g. elogind); without it gdm segfaults in libpcre2 (missing dconf
 # profile below) and then fails with "not preallocated and system lacks
 # userdb", crash-looping.
-system_accounts="gdm gdm-greeter"
+# NOTE: xbps-src's system_accounts custom-var mechanism (${_uname}_homedir
+# etc.) generates `export ${_uname}_homedir=...` and evals it as a bash
+# identifier, so the account name here can't contain a dash -- "gdm-greeter"
+# made the generated INSTALL script fail at runtime with "bad variable name".
+system_accounts="gdm gdmgreeter"
 gdm_homedir="/var/lib/gdm"
-gdm-greeter_homedir="/var/lib/gdm/greeter"
-gdm-greeter_descr="gdm greeter unprivileged user"
+gdmgreeter_homedir="/var/lib/gdm/greeter"
+gdmgreeter_descr="gdm greeter unprivileged user"
 
 # Package build options
 build_options="gir"
