@@ -1,16 +1,16 @@
 # Template file for 'cosmic-desktop'
 pkgname=cosmic-desktop
-version=1.8.0
+version=1.9.0
 revision=1
 archs="x86_64*"
 metapackage="yes"
 depends="
  cosmic-applets cosmic-applibrary cosmic-bg cosmic-comp cosmic-edit
  cosmic-files cosmic-greeter cosmic-icons cosmic-idle cosmic-initial-setup
- cosmic-launcher cosmic-monitor cosmic-notifications cosmic-osd cosmic-panel
+ cosmic-launcher cosmic-monitor cosmic-notifications cosmic-osd cosmic-osk cosmic-panel
  cosmic-player cosmic-randr cosmic-screenshot cosmic-session cosmic-settings
  cosmic-settings-daemon cosmic-sound-theme cosmic-store cosmic-term
- cosmic-tweaks cosmic-wallpapers cosmic-workspaces-epoch
+ cosmic-tweaks cosmic-wallpapers cosmic-viewer cosmic-workspaces-epoch
  xdg-desktop-portal-cosmic
  bash dbus xdg-user-dirs elogind
  wayland xorg-server-xwayland vulkan-loader libglvnd mesa-dri switcheroo-control
