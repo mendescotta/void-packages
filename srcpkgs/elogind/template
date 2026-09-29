@@ -1,14 +1,14 @@
 # Template file for 'elogind'
 pkgname=elogind
-version=252.39
+version=257.16
 reverts="255.22_1 255.22_2"
-revision=2
+revision=1
 build_style=meson
-configure_args="-Dcgroup-controller=elogind -Ddefault-hierarchy=legacy
+configure_args="-Dcgroup-controller=elogind
  -Ddefault-kill-user-processes=false -Dhalt-path=/usr/bin/halt
- -Dkexec-path=/usr/bin/kexec -Dman=true -Dpolkit=true
- -Dreboot-path=/usr/bin/reboot -Drootlibdir=/usr/lib
- -Drootlibexecdir=/usr/libexec/elogind"
+ -Dkexec-path=/usr/bin/kexec -Dman=enabled -Dpolkit=enabled
+ -Dreboot-path=/usr/bin/reboot --libexecdir=/usr/libexec/elogind
+ -Dnss-elogind=false -Duserdb=false"
 hostmakedepends="docbook-xsl glib-devel gperf gettext libxslt
  m4 pkg-config python3-Jinja2 shadow"
 makedepends="acl-devel eudev-libudev-devel libcap-devel
@@ -19,8 +19,13 @@ maintainer="Enno Boland <gottox@voidlinux.org>"
 license="GPL-2.0-or-later, LGPL-2.0-or-later"
 homepage="https://github.com/elogind/elogind"
 distfiles="https://github.com/${pkgname}/${pkgname}/archive/v${version}.tar.gz"
-checksum=5789c9d483dc236fbf72143dc9989329c399b6a507892c160b3c5852913123d5
-conf_files="/etc/elogind/*.conf"
+checksum=3c8146409bfb9daa77f272212c2b0bf0ae727c782ec87ece0d2d25e0e5bf5f4c
+conf_files="/etc/elogind/*.conf /etc/elogind/logind.conf.d/*.conf
+ /etc/elogind/sleep.conf.d/*.conf"
+# hook directories, no longer installed by the build since 257
+make_dirs="
+ /usr/libexec/elogind/system-shutdown 0755 root root
+ /usr/libexec/elogind/system-sleep 0755 root root"
 # tests fail differently due to containerization and kernel features
 make_check=ci-skip
 
@@ -57,6 +62,9 @@ post_install() {
 	vinstall ./src/systemd/sd-id128.h 644 usr/include
 	vinstall ./src/systemd/_sd-common.h 644 usr/include
 	vinstall $FILESDIR/elogind.wrapper 755 usr/libexec/elogind
+	vinstall $FILESDIR/elogind.dbus-activate 755 usr/libexec/elogind
+	vsed -i 's|^Exec=.*|Exec=/usr/libexec/elogind/elogind.dbus-activate|' \
+		${DESTDIR}/usr/share/dbus-1/system-services/org.freedesktop.login1.service
 	vmkdir usr/lib/dracut/dracut.conf.d
 	echo "install_items+=\" /usr/libexec/elogind/elogind-uaccess-command \"" >> ${DESTDIR}/usr/lib/dracut/dracut.conf.d/elogind.conf
 	vsv elogind
