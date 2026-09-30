@@ -1,6 +1,6 @@
 # Template file for 'cjs'
 pkgname=cjs
-version=128.1
+version=140.1
 revision=1
 build_style=meson
 build_helper="gir"
@@ -13,7 +13,7 @@ maintainer="Orphaned <orphan@voidlinux.org>"
 license="LGPL-2.0-or-later"
 homepage="https://github.com/linuxmint/cjs"
 distfiles="https://github.com/linuxmint/cjs/archive/refs/tags/${version}.tar.gz"
-checksum=20e59f7402f960fbba184b2eb2cdee60e316554fd771bf4d5598ec5e3b9d1002
+checksum=1e223ce6229a7dc926b5ec3ee42040f6848e466ab51eb36c415c283b0b03098c
 make_check_pre="xvfb-run"
 
 pre_configure() {
