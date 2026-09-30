@@ -1,6 +1,6 @@
 # Template file for 'cinnamon'
 pkgname=cinnamon
-version=6.6.7
+version=6.6.9
 revision=1
 build_style=meson
 build_helper="gir"
@@ -26,7 +26,7 @@ license="GPL-2.0-or-later, LGPL-2.0-or-later"
 homepage="https://github.com/linuxmint/cinnamon"
 changelog="https://raw.githubusercontent.com/linuxmint/cinnamon/${version}/debian/changelog"
 distfiles="https://github.com/linuxmint/cinnamon/archive/${version}.tar.gz"
-checksum=220f9ba77860d63708e682aa3fdc48cd8597b41b698467f116e477b45d514249
+checksum=62fe4a47f727fda66b4f38a83d21b23a7ccb9f2af169a5f8e7c0b4258131d6bf
 
 python_version=3
 pycompile_dirs="
