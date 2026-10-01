@@ -1,0 +1,29 @@
+# Template file for 'gtkada'
+pkgname=gtkada
+version=26.0.0
+revision=1
+build_style=gnu-configure
+hostmakedepends="pkg-config gcc-ada gprbuild gettext-devel"
+makedepends="gtk+3-devel"
+short_desc="Ada graphical toolkit based on GTK+3"
+maintainer="Void Linux <null@voidlinux.org>"
+license="GPL-3.0-or-later"
+homepage="https://github.com/AdaCore/gtkada"
+distfiles="https://github.com/AdaCore/gtkada/archive/refs/tags/v${version}.tar.gz"
+checksum=8c0d71655bba58c3a7a0644fe6200126c452af82124eb3ba36e9f84050c2a939
+
+post_install() {
+	rm -rf "${DESTDIR}/usr/share/examples"
+	vlicense COPYING3
+}
+
+gtkada-devel_package() {
+	depends="gprbuild ${sourcepkg}>=${version}_${revision}"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/gnat
+		vmove usr/lib/gtkada
+		vmove "usr/lib/*.so"
+	}
+}
