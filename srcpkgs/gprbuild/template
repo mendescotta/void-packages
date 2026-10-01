@@ -1,0 +1,34 @@
+# Template file for 'gprbuild'
+pkgname=gprbuild
+version=25.0.0
+revision=1
+_xmlada_version=25.0.0
+_kb_version=25.0.0
+hostmakedepends="gcc-ada"
+short_desc="Multi-language extensible build tool for Ada developers"
+maintainer="Void Linux <null@voidlinux.org>"
+license="GPL-3.0-or-later"
+homepage="https://github.com/AdaCore/gprbuild"
+distfiles="https://github.com/AdaCore/gprbuild/archive/refs/tags/v${version}.tar.gz>gprbuild-${version}.tar.gz
+ https://github.com/AdaCore/xmlada/archive/refs/tags/v${_xmlada_version}.tar.gz>xmlada-${_xmlada_version}.tar.gz
+ https://github.com/AdaCore/gprconfig_kb/archive/refs/tags/v${_kb_version}.tar.gz>gprconfig_kb-${_kb_version}.tar.gz"
+checksum="d12f94c1ec0b6e219f6b162f71f57129d22426e7798092f5f85b9ec2cc818bf1
+ dbb5984a0931311c7a787a679ef4cfaeeedd357474a585dc170140ef2251dcca
+ 802e6d38a3b110897924a9c16e143cb86360f2dde94bb5b9144c7c391e37b121"
+create_wrksrc=yes
+build_wrksrc="gprbuild-${version}"
+
+do_build() {
+	./bootstrap.sh --build \
+		--with-xmlada="${wrksrc}/xmlada-${_xmlada_version}" \
+		--with-kb="${wrksrc}/gprconfig_kb-${_kb_version}" \
+		--prefix=/usr
+}
+
+do_install() {
+	env DESTDIR="${DESTDIR}" ./bootstrap.sh --install \
+		--with-xmlada="${wrksrc}/xmlada-${_xmlada_version}" \
+		--with-kb="${wrksrc}/gprconfig_kb-${_kb_version}" \
+		--prefix=/usr
+	vlicense COPYING3
+}
