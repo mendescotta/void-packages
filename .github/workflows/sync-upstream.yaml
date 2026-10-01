@@ -1,0 +1,16 @@
+---
+name: Sync master from upstream
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fast-forward master to void-linux/void-packages
+        env:
+          GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
+        run: gh api --method POST "repos/${GITHUB_REPOSITORY}/merge-upstream" -f branch=master
