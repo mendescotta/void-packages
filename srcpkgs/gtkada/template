@@ -14,7 +14,6 @@ checksum=8c0d71655bba58c3a7a0644fe6200126c452af82124eb3ba36e9f84050c2a939
 
 post_install() {
 	rm -rf "${DESTDIR}/usr/share/examples"
-	vlicense COPYING3
 }
 
 gtkada-devel_package() {
