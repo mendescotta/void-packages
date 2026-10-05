@@ -33,6 +33,4 @@ do_install() {
 		rel="${svg#caerus/data/icons/hicolor/}"
 		vinstall "${svg}" 644 "usr/share/icons/hicolor/$(dirname "${rel}")"
 	done
-
-	vlicense LICENSE
 }
