@@ -30,5 +30,4 @@ do_install() {
 		--with-xmlada="${wrksrc}/xmlada-${_xmlada_version}" \
 		--with-kb="${wrksrc}/gprconfig_kb-${_kb_version}" \
 		--prefix=/usr
-	vlicense COPYING3
 }
