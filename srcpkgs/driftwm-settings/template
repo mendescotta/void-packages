@@ -16,5 +16,4 @@ checksum=261ad4b1a37abca5d228c1184fd40f2d436eb1f63d7a9b450ab31b2e960e65dd
 post_install() {
 	vinstall driftwm-settings.desktop 644 usr/share/applications
 	vinstall driftwm-settings.svg 644 usr/share/icons/hicolor/scalable/apps
-	vlicense LICENSE
 }
