@@ -44,6 +44,16 @@ post)
 	chmod 1770 var/log/gdm
 	chown gdm:gdm var/log/gdm
 
+	# Preallocated greeter account (see template), in group gdm for the
+	# "user ingroup gdm" check in gdm-launch-environment's PAM stack.
+	if ! getent group gdm-greeter >/dev/null; then
+		groupadd -r gdm-greeter
+	fi
+	if ! getent passwd gdm-greeter >/dev/null; then
+		useradd -r -g gdm-greeter -G gdm,video -d /run/gdm/home/gdm-greeter \
+			-s /bin/false -c "gdm greeter" gdm-greeter
+	fi
+
 	dconf update
 
 	# Use XDG_RUNTIME_DIR for gdm via pam_env(8)
