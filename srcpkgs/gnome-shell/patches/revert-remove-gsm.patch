@@ -1,0 +1,53 @@
+Without systemd, gnome-session-init-worker uses this RegisterClient call as
+the signal that the shell is ready (what gnome-session-signal-init.service
+does under systemd), then marks the session initialized.
+
+From e7e1f046569a163b2d4de6f74f517bc9a760efa0 Mon Sep 17 00:00:00 2001
+From: Achill Gilgenast <achill@achill.org>
+Date: Sun, 15 Mar 2026 12:52:42 +0100
+Subject: [PATCH 1/2] Reapply "main: Notify gnome-session when we're ready"
+
+This reverts commit d697bdceaefeae49ad0e03df7352884899c3e14a.
+
+Signed-off-by: Achill Gilgenast <achill@achill.org>
+---
+ js/ui/main.js | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/js/ui/main.js b/js/ui/main.js
+index 01a18b5a2d20..6c75efc02ce3 100644
+--- a/js/ui/main.js
++++ b/js/ui/main.js
+@@ -314,6 +314,8 @@ async function _initializeUI() {
+     GLib.idle_add_once(GLib.PRIORITY_DEFAULT, () => {
+         Shell.util_sd_notify();
+         global.context.notify_ready();
++        _notifyGnomeSessionReady();
++        return GLib.SOURCE_REMOVE;
+     });
+ 
+     _startDate = new Date();
+@@ -379,6 +381,20 @@ async function _initializeUI() {
+     });
+ }
+ 
++async function _notifyGnomeSessionReady() {
++    try {
++        let params = GLib.Variant.new('(ss)', ['org.gnome.Shell.desktop', '']);
++        await Gio.DBus.session.call(
++            'org.gnome.SessionManager',
++            '/org/gnome/SessionManager',
++            'org.gnome.SessionManager',
++            'RegisterClient', params, null,
++            Gio.DBusCallFlags.NONE, -1, null);
++    } catch (e) {
++        log(`Error notifying gnome-session that we're ready: ${e.message}`);
++    }
++}
++
+ function _handleShowWelcomeScreen() {
+     const lastShownVersion = global.settings.get_string(WELCOME_DIALOG_LAST_SHOWN_VERSION);
+     if (Util.GNOMEversionCompare(WELCOME_DIALOG_LAST_TOUR_CHANGE, lastShownVersion) > 0) {
+-- 
+2.53.0
+
