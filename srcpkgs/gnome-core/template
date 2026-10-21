@@ -1,6 +1,6 @@
 # Template file for 'gnome-core'
 pkgname=gnome-core
-version=48.0
+version=51.0
 revision=1
 metapackage=yes
 short_desc="GNOME meta-package for Void Linux - core components"
@@ -26,9 +26,9 @@ depends="
  gnome-backgrounds>=${version}
  gnome-bluetooth>=47.1
  gnome-color-manager>=3.36.2
- gnome-control-center>=${version}
+ gnome-control-center>=50.0
  gnome-desktop>=44.1
- gnome-initial-setup>=${version}
+ gnome-initial-setup>=50.0
  gnome-keyring>=${version}
  gnome-online-accounts>=3.54.1
  gnome-session>=${version}
