@@ -1,517 +1,234 @@
-## The XBPS source packages collection
+# GNOME 51 on Void Linux (runit)
 
-This repository contains the XBPS source packages collection to build binary packages
-for the Void Linux distribution.
+This is the `gnome51` branch of
+[mendescotta/void-packages](https://github.com/mendescotta/void-packages). It
+brings GNOME 51 to stock Void Linux, which runs runit and elogind and has no
+systemd. The goal is a minimal patchset against Void's `master` that can go
+upstream. There are no personal changes: no GTK3 splits, no slimmed
+`gnome-core`, no dropped dependencies. Builds run on Void's toolchain and
+platform libraries, with gtk4 4.22, glib 2.88, accountsservice 23 and
+elogind 252. It builds on
+[void-linux/void-packages#59394](https://github.com/void-linux/void-packages/pull/59394)
+("[WIP] GNOME 50").
 
-The included `xbps-src` script will fetch and compile the sources, and install its
-files into a `fake destdir` to generate XBPS binary packages that can be installed
-or queried through the `xbps-install(1)` and `xbps-query(1)` utilities, respectively.
+Void's own build documentation is in [Manual.md](./Manual.md) and
+[CONTRIBUTING.md](./CONTRIBUTING.md).
 
-See [Contributing](./CONTRIBUTING.md) for a general overview of how to contribute and the
-[Manual](./Manual.md) for details of how to create source packages.
+## Install
 
-### Table of Contents
+The branch is not in any binary repository. You build it with `xbps-src`
+and install from the local repository it creates.
 
-- [Requirements](#requirements)
-- [Quick start](#quick-start)
-- [chroot methods](#chroot-methods)
-- [Install the bootstrap packages](#install-bootstrap)
-- [Configuration](#configuration)
-- [Directory hierarchy](#directory-hierarchy)
-- [Building packages](#building-packages)
-- [Package build options](#build-options)
-- [Sharing and signing your local repositories](#sharing-and-signing)
-- [Rebuilding and overwriting existing local packages](#rebuilding)
-- [Enabling distcc for distributed compilation](#distcc)
-- [Distfiles mirrors](#distfiles-mirrors)
-- [Cross compiling packages for a target architecture](#cross-compiling)
-- [Using xbps-src in a foreign Linux distribution](#foreign)
-- [Remaking the masterdir](#remaking-masterdir)
-- [Keeping your masterdir uptodate](#updating-masterdir)
-- [Building 32bit packages on x86_64](#building-32bit)
-- [Building packages natively for the musl C library](#building-for-musl)
-- [Building void base-system from scratch](#building-base-system)
+### With the script
 
-### Requirements
+As a normal user (not root), with `sudo` or `doas` available:
 
-- GNU bash
-- xbps >= 0.56
-- git(1) - unless configured to not, see etc/defaults.conf
-- common POSIX utilities included by default in almost all UNIX systems
-- curl(1) - required by `xbps-src update-check`
-
-For bootstrapping from source additionally:
-- flock(1) - util-linux
-- bsdtar or GNU tar (in that order of preference)
-- install(1) - GNU coreutils
-- objcopy(1), objdump(1), strip(1): binutils
-
-`xbps-src` requires [a utility to chroot](#chroot-methods) and bind mount existing directories
-into a `masterdir` that is used as its main `chroot` directory. `xbps-src` supports
-multiple utilities to accomplish this task.
-
-> NOTE: `xbps-src` does not allow building as root anymore. Use one of the chroot
-methods.
-
-<a name="quick-start"></a>
-### Quick start
-
-Clone the `void-packages` git repository:
-
-```
-$ git clone https://github.com/void-linux/void-packages.git
-$ cd void-packages
+```sh
+git clone --branch gnome51 https://github.com/mendescotta/void-packages.git
+cd void-packages
+./install-gnome51.sh        # build and install
+./install-gnome51.sh -e     # the same, then enable gdm (replaces other display managers)
+./install-gnome51.sh -n     # dry run: print the commands only
 ```
 
-Bootstrapping from binary packages will be done automatically when first building
-a package, but it can be done manually with:
+The script bootstraps `xbps-src` if needed and builds the GNOME 51 packages in
+dependency order. It also rebuilds the installed packages that link
+`libgnome-desktop-3` (evince, eog, cheese, totem, evolution, gnome-panel,
+xdg-desktop-portal-gtk), plus `openbox` and `removed-packages`. It then
+installs `gnome-core` and `gdm` from `hostdir/binpkgs/gnome51`. Run it again
+to pull and rebuild after the branch changes.
 
-```
-$ ./xbps-src binary-bootstrap
-```
+### By hand
 
-Build a package by specifying the `pkg` target and the package name:
-
-```
-$ ./xbps-src pkg <package_name>
-```
-
-Use `./xbps-src -h` to list all available targets and options.
-
-To build packages marked as 'restricted', modify `etc/conf`:
-
-```
-$ echo XBPS_ALLOW_RESTRICTED=yes >> etc/conf
-```
-
-Once built, the package will be available in `hostdir/binpkgs` or an appropriate subdirectory (e.g. `hostdir/binpkgs/nonfree`). To install the package:
-
-```
-# xbps-install --repository hostdir/binpkgs <package_name>
+```sh
+./xbps-src binary-bootstrap
+for p in gsettings-desktop-schemas gnome-desktop gnome-settings-daemon mutter \
+	gnome-shell gnome-control-center gnome-session gdm xdg-desktop-portal-gnome \
+	gnome-shell-extensions adwaita-fonts adwaita-icon-theme gnome-backgrounds \
+	gnome-initial-setup gnome-keyring gnome-online-accounts gnome-core; do
+	./xbps-src pkg $p || break
+done
+# plus any of these that are installed: cheese eog evince evolution gnome-panel
+# totem xdg-desktop-portal-gtk openbox removed-packages
+sudo xbps-install -S --repository=hostdir/binpkgs/gnome51 gnome-core gdm
 ```
 
-Alternatively, packages can be installed with the `xi` utility, from the `xtools` package. `xi` takes the repository of the current working directory into account.
+xbps-src puts packages built on a branch other than `master` in
+`hostdir/binpkgs/<branch>`.
 
-```
-$ xi <package_name>
-```
+### Enable it
 
-<a name="chroot-methods"></a>
-### chroot methods
-
-#### xbps-uunshare(1) (default)
-
-XBPS utility that uses `user_namespaces(7)` (part of xbps, default without `-t` flag).
-
-This utility requires these Linux kernel options:
-
-- CONFIG\_NAMESPACES
-- CONFIG\_IPC\_NS
-- CONFIG\_UTS\_NS
-- CONFIG\_USER\_NS
-
-This is the default method, and if your system does not support any of the required kernel
-options it will fail with `EINVAL (Invalid argument)`.
-
-#### xbps-uchroot(1)
-
-XBPS utility that uses `namespaces` and must be `setgid` (part of xbps).
-
-> NOTE: This is the only method that implements functionality of `xbps-src -t`, therefore the
-flag ignores the choice made in configuration files and enables `xbps-uchroot`.
-
-This utility requires these Linux kernel options:
-
-- CONFIG\_NAMESPACES
-- CONFIG\_IPC\_NS
-- CONFIG\_PID\_NS
-- CONFIG\_UTS\_NS
-
-Your user must be added to a special group to be able to use `xbps-uchroot(1)` and the
-executable must be `setgid`:
-
-    # chown root:<group> xbps-uchroot
-    # chmod 4750 xbps-uchroot
-    # usermod -a -G <group> <user>
-
-> NOTE: by default in void you shouldn't do this manually, your user must be a member of
-the `xbuilder` group.
-
-To enable it:
-
-    $ cd void-packages
-    $ echo XBPS_CHROOT_CMD=uchroot >> etc/conf
-
-If for some reason it's erroring out as `ERROR clone (Operation not permitted)`, check that
-your user is a member of the required `group` and that `xbps-uchroot(1)` utility has the
-proper permissions and owner/group as explained above.
-
-#### bwrap(1)
-
-bubblewrap, sandboxing tool for unprivileged users that uses
-user namespaces or setuid.
-See <https://github.com/containers/bubblewrap>.
-
-#### ethereal
-
-Destroys host system it runs on. Only useful for one-shot containers, i.e docker (used with CI).
-
-<a name="install-bootstrap"></a>
-### Install the bootstrap packages
-
-There is a set of packages that makes up the initial build container, called the `bootstrap`.
-These packages are installed into the `masterdir` in order to create the container.
-
-The primary and recommended way to set up this container is using the `binary-bootstrap`
-command. This will use pre-existing binary packages, either from remote `xbps` repositories
-or from your local repository. This is done automatically when building packages, if an initialized
-masterdir for the host architecture does not exist.
-
-There is also the `bootstrap` command, which will build all necessary `bootstrap` packages from
-scratch. This is usually not recommended, since those packages are built using your host system's
-toolchain and are neither fully featured nor reproducible (your host system may influence the
-build) and thus should only be used as a stage 0 for bootstrapping new Void systems.
-
-If you still choose to use `bootstrap`, use the resulting stage 0 container to rebuild all
-`bootstrap` packages again, then use `binary-bootstrap` (stage 1) and rebuild the `bootstrap`
-packages once more (to gain stage 2, and then use `binary-bootstrap` again). Once you've done
-that, you will have a `bootstrap` set equivalent to using `binary-bootstrap` in the first place.
-
-Also keep in mind that a full source `bootstrap` is time consuming and will require having an
-assortment of utilities installed in your host system, such as `binutils`, `gcc`, `perl`,
-`texinfo` and others.
-
-### Configuration
-
-The `etc/defaults.conf` file contains the possible settings that can be overridden
-through the `etc/conf` configuration file for the `xbps-src` utility; if that file
-does not exist, will try to read configuration settings from `$XDG_CONFIG_HOME/xbps-src.conf`, `~/.config/xbps-src.conf`, `~/.xbps-src.conf`.
-
-If you want to customize default `CFLAGS`, `CXXFLAGS` and `LDFLAGS`, don't override
-those defined in `etc/defaults.conf`, set them on `etc/conf` instead i.e:
-
-    $ echo 'XBPS_CFLAGS="your flags here"' >> etc/conf
-    $ echo 'XBPS_LDFLAGS="your flags here"' >> etc/conf
-
-Native and cross compiler/linker flags are set per architecture in `common/build-profiles`
-and `common/cross-profiles` respectively. Ideally those settings are good enough by default,
-and there's no need to set your own unless you know what you are doing.
-
-#### Virtual packages
-
-The `etc/defaults.virtual` file contains the default replacements for virtual packages,
-used as dependencies in the source packages tree.
-
-If you want to customize those replacements, copy `etc/defaults.virtual` to `etc/virtual`
-and edit it accordingly to your needs.
-
-<a name="directory-hierarchy"></a>
-### Directory hierarchy
-
-The following directory hierarchy is used with a default configuration file:
-
-         /void-packages
-            |- common
-            |- etc
-            |- srcpkgs
-            |  |- xbps
-            |     |- template
-            |
-            |- hostdir
-            |  |- binpkgs ...
-            |  |- ccache ...
-            |  |- distcc-<arch> ...
-            |  |- repocache ...
-            |  |- sources ...
-            |
-            |- masterdir-<arch>
-            |  |- builddir -> ...
-            |  |- destdir -> ...
-            |  |- host -> bind mounted from <hostdir>
-            |  |- void-packages -> bind mounted from <void-packages>
-
-
-The description of these directories is as follows:
-
- - `masterdir-<arch>`: master directory to be used as rootfs to build/install packages.
- - `builddir`: to unpack package source tarballs and where packages are built.
- - `destdir`: to install packages, aka **fake destdir**.
- - `hostdir/ccache`: to store ccache data if the `XBPS_CCACHE` option is enabled.
- - `hostdir/distcc-<arch>`: to store distcc data if the `XBPS_DISTCC` option is enabled.
- - `hostdir/repocache`: to store binary packages from remote repositories.
- - `hostdir/sources`: to store package sources.
- - `hostdir/binpkgs`: local repository to store generated binary packages.
-
-<a name="building-packages"></a>
-### Building packages
-
-The simplest form of building package is accomplished by running the `pkg` target in `xbps-src`:
-
-```
-$ cd void-packages
-$ ./xbps-src pkg <pkgname>
+```sh
+sudo ln -s /etc/sv/dbus /var/service/    # if not enabled yet
+sudo rm /var/service/<other display manager>
+sudo ln -s /etc/sv/gdm /var/service/     # starts the greeter at once
 ```
 
-When the package and its required dependencies are built, the binary packages will be created
-and registered in the default local repository at `hostdir/binpkgs`; the path to this local repository can be added to
-any xbps configuration file (see xbps.d(5)) or by explicitly appending them via cmdline, i.e:
-
-    $ xbps-install --repository=hostdir/binpkgs ...
-    $ xbps-query --repository=hostdir/binpkgs ...
-
-By default **xbps-src** will try to resolve package dependencies in this order:
-
- - If a dependency exists in the local repository, use it (`hostdir/binpkgs`).
- - If a dependency exists in a remote repository, use it.
- - If a dependency exists in a source package, use it.
-
-It is possible to avoid using remote repositories completely by using the `-N` flag.
-
-> The default local repository may contain multiple *sub-repositories*: `debug`, `multilib`, etc.
-
-<a name="build-options"></a>
-### Package build options
-
-The supported build options for a source package can be shown with `xbps-src show-options`:
-
-    $ ./xbps-src show-options foo
-
-Build options can be enabled with the `-o` flag of `xbps-src`:
-
-    $ ./xbps-src -o option,option1 pkg foo
-
-Build options can be disabled by prefixing them with `~`:
-
-    $ ./xbps-src -o ~option,~option1 pkg foo
-
-Both ways can be used together to enable and/or disable multiple options
-at the same time with `xbps-src`:
-
-    $ ./xbps-src -o option,~option1,~option2 pkg foo
-
-The build options can also be shown for binary packages via `xbps-query(1)`:
-
-    $ xbps-query -R --property=build-options foo
-
-> NOTE: if you build a package with a custom option, and that package is available
-in an official void repository, an update will ignore those options. Put that package
-on `hold` mode via `xbps-pkgdb(1)`, i.e `xbps-pkgdb -m hold foo` to ignore updates
-with `xbps-install -u`. Once the package is on `hold`, the only way to update it
-is by declaring it explicitly: `xbps-install -u foo`.
-
-Permanent global package build options can be set via `XBPS_PKG_OPTIONS` variable in the
-`etc/conf` configuration file. Per package build options can be set via
-`XBPS_PKG_OPTIONS_<pkgname>`.
-
-> NOTE: if `pkgname` contains `dashes`, those should be replaced by `underscores`
-i.e `XBPS_PKG_OPTIONS_xorg_server=opt`.
-
-The list of supported package build options and its description is defined in the
-`common/options.description` file or in the `template` file.
-
-<a name="sharing-and-signing"></a>
-### Sharing and signing your local repositories
-
-To share a local repository remotely it's mandatory to sign it and the binary packages
-stored on it. This is accomplished with the `xbps-rindex(1)` utility.
-
-First a RSA key must be created with `openssl(1)` or `ssh-keygen(1)`:
-
-	$ openssl genrsa -des3 -out privkey.pem 4096
-
-or
-
-	$ ssh-keygen -t rsa -b 4096 -m PEM -f privkey.pem
-
-> Only RSA keys in PEM format are currently accepted by xbps.
-
-Once the RSA private key is ready you can use it to initialize the repository metadata:
-
-	$ xbps-rindex --sign --signedby "I'm Groot" --privkey privkey.pem $PWD/hostdir/binpkgs
-
-And then make a signature per package:
-
-	$ xbps-rindex --sign-pkg --privkey privkey.pem $PWD/hostdir/binpkgs/*.xbps
-
-> If --privkey is unset, it defaults to `~/.ssh/id_rsa`.
-
-If the RSA key was protected with a passphrase you'll have to type it, or alternatively set
-it via the `XBPS_PASSPHRASE` environment variable.
-
-Once the binary packages have been signed, check if the repository contains the appropriate `hex fingerprint`:
-
-	$ xbps-query --repository=hostdir/binpkgs -vL
-	...
-
-Each time a binary package is created, a package signature must be created with `--sign-pkg`.
-
-> It is not possible to sign a repository with multiple RSA keys.
-
-If packages in `hostdir/binpkgs` are signed, the key in `.plist` format (as imported by xbps) can be placed
-in `etc/repo-keys/` to prevent xbps-src from prompting to import that key.
-
-<a name="rebuilding"></a>
-### Rebuilding and overwriting existing local packages
-
-Packages are overwritten on every build to make getting package with changed build options easy.
-To make xbps-src skip build and preserve first package build with given version and revision,
-same as in official void repository, set `XBPS_PRESERVE_PKGS=yes` in `etc/conf` file.
-
-Reinstalling a package in your target `rootdir` can be easily done too:
-
-    $ xbps-install --repository=/path/to/local/repo -yf xbps-0.25_1
-
-Using `-f` flag twice will overwrite configuration files.
-
-> Please note that the `package expression` must be properly defined to explicitly pick up
-the package from the desired repository.
-
-<a name="distcc"></a>
-### Enabling distcc for distributed compilation
-
-Setup the workers (machines that will compile the code):
-
-    # xbps-install -Sy distcc
-
-Update distcc compiler whitelist
-
-    # update-distcc-symlinks
-
-Modify the configuration to allow your local network machines to use distcc (e.g. `192.168.2.0/24`):
-
-    # echo "192.168.2.0/24" >> /etc/distcc/clients.allow
-
-Enable and start the `distccd` service:
-
-    # ln -s /etc/sv/distccd /var/service
-
-Install distcc on the host (machine that executes xbps-src) as well.
-Unless you want to use the host as worker from other machines, there is no need
-to modify the configuration.
-
-On the host you can now enable distcc in the `void-packages/etc/conf` file:
-
-    XBPS_DISTCC=yes
-    XBPS_DISTCC_HOSTS="localhost/2 --localslots_cpp=24 192.168.2.101/9 192.168.2.102/2"
-    XBPS_MAKEJOBS=16
-
-The example values assume a localhost CPU with 4 cores of which at most 2 are used for compiler jobs.
-The number of slots for preprocessor jobs is set to 24 in order to have enough preprocessed data for other CPUs to compile.
-The worker 192.168.2.101 has a CPU with 8 cores and the /9 for the number of jobs is a saturating choice.
-The worker 192.168.2.102 is set to run at most 2 compile jobs to keep its load low, even if its CPU has 4 cores.
-The XBPS_MAKEJOBS setting is increased to 16 to account for the possible parallelism (2 + 9 + 2 + some slack).
-
-<a name="distfiles-mirrors"></a>
-### Distfiles mirror(s)
-
-In etc/conf you may optionally define a mirror or a list of mirrors to search for distfiles.
-
-    $ echo 'XBPS_DISTFILES_MIRROR="ftp://192.168.100.5/gentoo/distfiles"' >> etc/conf
-
-If more than one mirror is to be searched, you can either specify multiple URLs separated
-with blanks, or add to the variable like this
-
-    $ echo 'XBPS_DISTFILES_MIRROR+=" https://sources.voidlinux.org/"' >> etc/conf
-
-Make sure to put the blank after the first double quote in this case.
-
-The mirrors are searched in order for the distfiles to build a package until the
-checksum of the downloaded file matches the one specified in the template.
-
-Ultimately, if no mirror carries the distfile, or in case all downloads failed the
-checksum verification, the original download location is used.
-
-If you use `uchroot` for your XBPS_CHROOT_CMD, you may also specify a local path
-using the `file://` prefix or simply an absolute path on your build host (e.g. /mnt/distfiles).
-Mirror locations specified this way are bind mounted inside the chroot environment
-under $XBPS_MASTERDIR and searched for distfiles just the same as remote locations.
-
-<a name="cross-compiling"></a>
-### Cross compiling packages for a target architecture
-
-Currently `xbps-src` can cross build packages for some target architectures with a cross compiler.
-The supported target is shown with `./xbps-src -h`.
-
-If a source package has been adapted to be **cross buildable** `xbps-src` will automatically build the binary package(s) with a simple command:
-
-    $ ./xbps-src -a <target> pkg <pkgname>
-
-If the build for whatever reason fails, might be a new build issue or simply because it hasn't been adapted to be **cross compiled**.
-
-<a name="foreign"></a>
-### Using xbps-src in a foreign Linux distribution
-
-xbps-src can be used in any recent Linux distribution matching the CPU architecture.
-
-To use xbps-src in your Linux distribution use the following instructions. Let's start downloading the xbps static binaries:
-
-    $ wget http://repo-default.voidlinux.org/static/xbps-static-latest.<arch>-musl.tar.xz
-    $ mkdir ~/XBPS
-    $ tar xvf xbps-static-latest.<arch>-musl.tar.xz -C ~/XBPS
-    $ export PATH=~/XBPS/usr/bin:$PATH
-
-If `xbps-uunshare` does not work because of lack of `user_namespaces(7)` support,
-try other [chroot methods](#chroot-methods).
-
-Clone the `void-packages` git repository:
-
-    $ git clone https://github.com/void-linux/void-packages.git
-
-and `xbps-src` should be fully functional; optionally, start the `bootstrap` process, i.e:
-
-    $ ./xbps-src binary-bootstrap
-
-The default masterdir is created in the current working directory, i.e. `void-packages/masterdir-<arch>`, where `<arch>` for the default masterdir is is the native xbps architecture.
-
-<a name="remaking-masterdir"></a>
-### Remaking the masterdir
-
-If for some reason you must update xbps-src and the `bootstrap-update` target is not enough, it's possible to recreate a masterdir with two simple commands (please note that `zap` keeps your `ccache/distcc/host` directories intact):
-
-    $ ./xbps-src zap
-    $ ./xbps-src binary-bootstrap
-
-<a name="updating-masterdir"></a>
-### Keeping your masterdir uptodate
-
-Sometimes the bootstrap packages must be updated to the latest available version in repositories, this is accomplished with the `bootstrap-update` target:
-
-    $ ./xbps-src bootstrap-update
-
-<a name="building-32bit"></a>
-### Building 32bit packages on x86_64
-
-Two ways are available to build 32bit packages on x86\_64:
-
- - native mode with a 32bit masterdir (recommended, used in official repository)
- - cross compilation mode to i686 [target](#cross-compiling)
-
-The canonical mode (native) needs a new x86 `masterdir`, which is created when building a package for i686:
-
-    $ ./xbps-src -A i686 ...
-
-<a name="building-for-musl"></a>
-### Building packages natively for the musl C library
-
-The canonical way of building packages for same architecture but different C library is through a dedicated masterdir by using the host architecture flag `-A`.
-To build for x86_64-musl on glibc x86_64 system, use `-A x86_64-musl` in your `xbps-src` invocation.
-This will create and bootstrap a new masterdir called `masterdir-x86_64-musl` that will be used when `-A x86_64-musl` is specified:
-
-    $ ./xbps-src -A x86_64-musl pkg ...
-
-<a name="building-base-system"></a>
-### Building void base-system from scratch
-
-To rebuild all packages in `base-system` for your native architecture:
-
-    $ ./xbps-src -N pkg base-system
-
-It's also possible to cross compile everything from scratch:
-
-    $ ./xbps-src -a <target> -N pkg base-system
-
-Once the build has finished, you can specify the path to the local repository to `void-mklive`, i.e:
-
-    # cd void-mklive
-    # make
-    # ./mklive.sh ... -r /path/to/hostdir/binpkgs
+A GPU driver (`mesa-dri` or the NVIDIA driver) has to be installed, as the
+Void handbook describes. Sound needs PipeWire, set up as the handbook
+describes.
+
+### Things to watch for
+
+- Budgie, gnome-flashback and gnome-screensaver are removed on this branch
+  (see below). Updating `removed-packages` uninstalls them. They would
+  otherwise block the gnome-desktop update.
+- If extra repositories with newer GNOME builds are configured (with
+  `bestmatching=true`), xbps can prefer those builds over the branch's. To
+  install only from Void plus the branch, add `-i` and list the repositories:
+  `xbps-install -i -R hostdir/binpkgs/gnome51 -R https://repo-default.voidlinux.org/current ...`.
+- gdm keeps an edited `/etc/gdm/custom.conf`. Compare it with
+  `custom.conf.new-*` after updating.
+
+## Why Void is still on GNOME 48
+
+Since version 49, gnome-session brings the session up only by starting
+systemd user units: `gnome-session-init-worker` calls
+`org.freedesktop.systemd1.StartUnit`. gdm 49+ needs that newer gnome-session.
+elogind does not implement `systemd1`. PR #59394 therefore updates Shell,
+Mutter, Settings Daemon and the leaf packages to 50 but keeps gnome-session
+and gdm at 48 with compatibility patches. Its known problems are missing
+shutdown and suspend, the Shell always "Not Responding" at logout, and gdm
+stuck at 48.
+
+This branch takes a different route. Everything is GNOME 51, gnome-session
+and gdm included, and only gnome-session's systemd-only init worker is
+replaced. runit does not supervise the session, so the 48/50 API mismatches
+from the PR do not occur.
+
+## The session without systemd
+
+- **gnome-session** is built with `-Dsystemd=false`
+  (`systemd-optional.patch`). This builds no units, no systemd worker and no
+  `gnome-session-ctl`, and uses libelogind. gnome-session sets up and exports
+  the session environment, then execs
+  `/usr/libexec/gnome-session-init-worker <session>`.
+- **`files/gnome-session-init-worker`** (bash) starts the same components the
+  systemd units would, in their order, as plain children of the login
+  session:
+  1. `gnome-session-service`
+  2. `gnome-shell` (`--mode=gdm`, `initial-setup` or `user`). The worker
+     picks the Wayland socket name so it can pass it to the plugins.
+  3. A `dbus-monitor` waits for the Shell's
+     `RegisterClient(org.gnome.Shell.desktop)` and then calls `Initialized`.
+     Under systemd, `gnome-session-signal-init.service` does this.
+  4. The `gsd-*` plugins.
+
+  If gnome-session-service or the Shell exits, the session ends. A plugin
+  that fails is restarted up to five times. Plugins whose system daemon is
+  missing are skipped: cupsd, pcscd, usbguard-daemon and ModemManager.
+  Per-session opt-outs go in `/etc/gnome-session/sessions/<session>.disabled`.
+  A lock refuses a second concurrent session for the same user.
+- **`files/sessions/gnome-login`** lists the components of gdm's greeter
+  session.
+- **`files/dbus-run-session-if-needed`** wraps `gnome.desktop`'s `Exec`.
+  gnome-session aborts without a session bus. gdm provides one, but lightdm
+  and `startx`-style logins do not.
+- **gnome-shell `revert-remove-gsm.patch`** makes the Shell call
+  `RegisterClient` once it is ready. The worker uses that call as its
+  readiness signal.
+
+## Package changes
+
+| package | master | branch | notes |
+|---|---|---|---|
+| gsettings-desktop-schemas | 48.0 | 51.0 | |
+| gnome-desktop | 44.3 | 51.0 | needed by Shell 51 (below) |
+| mutter | 48.7 | 51.1 | |
+| gnome-shell | 48.7 | 51.1 | `revert-remove-gsm.patch`; `gjs-1.86.0.patch` dropped (upstream) |
+| gnome-settings-daemon | 48.1 | 51.1 | |
+| gnome-session | 48.0 | 51.0 | `systemd-optional.patch`, `autostart-condition.patch`, init worker |
+| gdm | 48.0 | 51.1 | see below |
+| gnome-control-center | 48.3 | 50.0 | 51 needs gtk4 4.24, glib 2.90, pango 1.58, accountsservice 26 |
+| gnome-initial-setup | 48.1 | 50.0 | same as gnome-control-center |
+| nautilus | 50.2.2 | 50.2.2 | 51 needs gtk4 4.24, glib 2.89 and libgxdp |
+| xdg-desktop-portal-gnome | 48.0 | 51.0 | |
+| gnome-shell-extensions | 48.3 | 51.0 | |
+| adwaita-fonts | 48.2 | 51.0 | |
+| adwaita-icon-theme | 49.0 | 51.0 | |
+| gnome-backgrounds | 48.2.1 | 51.0.1 | |
+| gnome-keyring | 48.0 | 51.1 | |
+| gnome-online-accounts | 3.54.4 | 3.58.1 | |
+| gnome-core | 48.0 | 51.0 | `gnome-control-center>=50.0`, `gnome-initial-setup>=50.0`, `nautilus>=50.2.2` |
+
+gdm:
+
+- `INSTALL` creates the preallocated `gdm-greeter` account, in group `gdm`.
+  gdm 49+ without userdb looks up exactly that name, and `system_accounts`
+  cannot create names that contain a dash.
+- `greeter-env-without-systemd.patch`. Since gdm 50, the greeter environment
+  (DCONF_PROFILE, XDG_*) is written only to `environment.d`, which only
+  `systemd --user` reads. The patch sets it on the session again.
+- `elogind-252-session-username.patch`. `sd_session_get_username()` arrived
+  in systemd 254. The patch looks the name up from the session's uid. Drop it
+  with elogind ≥ 254.
+- `drop-wayland-udev-rules.patch` is dropped because it is part of 51.1.
+
+mutter's `565756e1….patch` is dropped because it is part of 51.1.
+
+### gnome-desktop 51 and its fallout
+
+gnome-shell 51 imports `GnomeQR` (`js/misc/dependencies.js`, used by
+`js/ui/qrCode.js`) at startup. gnome-desktop 51 introduced it, as
+`libgnome-qr-4`. With gnome-desktop 44, the Shell exits at once and gdm
+shows a black screen. This is a GObject-introspection import, not an ELF
+link, so neither meson (`gnome-desktop-4 >= 40`) nor xbps catches it.
+
+gnome-desktop 51 is built with `-Dqr=enabled`. Its upstream `qrcodegen`
+subproject is vendored in the tarball. The X11 build dependencies are gone
+because nothing in 51 uses them. `libxkbcommon-devel` is listed because
+`xkbregistry` is linked.
+
+Upstream removed GnomeRR in
+[`c030c776`](https://gitlab.gnome.org/GNOME/gnome-desktop/-/commit/c030c7763402069e9fdcc72e31dcf799f8052d26)
+("Remove libgnome-rr", first in 51.alpha). That removed both `libgnome-rr-4`
+and the RR code in the legacy `libgnome-desktop-3`.
+[`65687d8a`](https://gitlab.gnome.org/GNOME/gnome-desktop/-/commit/65687d8a)
+bumped `libgnome-desktop-3` from `.so.20` to `.so.21`. As a result:
+
+- `common/shlibs` lists `libgnome-desktop-3.so.21`, `libgnome-qr-4.so.0` and
+  `libgnome-qr-gtk-4.so.0`. `libgnome-rr-4.so.2` is removed.
+- Revbumped and rebuilt: cheese, eog, evince, evolution, gnome-panel, totem
+  (libtotem), xdg-desktop-portal-gtk.
+- Removed (added to `removed-packages`):
+  - budgie-desktop, budgie-control-center, budgie-screensaver,
+    budgie-session, budgie-desktop-view and magpie. The Budgie packages use
+    GnomeRR (budgie-control-center's color panel, budgie-screensaver's
+    fade). Upstream dropped the color panel only in budgie-control-center
+    2.1.2, and budgie-screensaver is unmaintained.
+  - gnome-screensaver 3.6.1: unmaintained since 2012, uses GnomeRR, and
+    GNOME Shell has its own lock screen.
+  - gnome-flashback: no longer buildable here (ibus 1.5.32 API).
+- openbox no longer ships its GNOME session (`openbox-gnome-session`, the
+  `openbox-gnome*.session` files, the `openbox-gnome` xsession).
+  gnome-session 49+ runs only GNOME Shell sessions.
+
+## Testing
+
+Bare metal (x86_64 glibc, NVIDIA GTX 1660 Ti Mobile with the proprietary driver, runit), 2026-10-23, installed
+from the branch with only Void's official repository besides the branch's:
+
+| check | result |
+|---|---|
+| greeter | gdm 51 greeter runs: gdm → gdm-wayland-session → `gnome-session-init-worker gnome-login` → gnome-shell, Xwayland, gsd plugins |
+| gnome-desktop 44 | black greeter: `JS ERROR: Requiring GnomeQR, version 4.0: Typelib file … not found`. Fixed by gnome-desktop 51 |
+| login, power menu, logout | in progress |
+
+An earlier QEMU/KVM test of the same session design passed login, lock and
+unlock, Restart, Suspend, Power Off, logout and a second login, and the
+polkit agent worked. That test ran on the voidlab overlay's newer platform
+(GNOME 51 throughout), not on this branch.
+
+Known gaps:
+
+- `gsd-xsettings` is not started. Under systemd, the Shell starts it through
+  `gnome-session-x11-services-ready.target` once Xwayland runs. X11 apps
+  therefore get no XSETTINGS.
+- musl is not built or tested.
+
+## Upstreaming
+
+Each package change is its own commit, in
+[CONTRIBUTING.md](./CONTRIBUTING.md) format. The last commits (this README
+and `install-gnome51.sh`) exist only on this branch and are dropped before
+opening a pull request.
