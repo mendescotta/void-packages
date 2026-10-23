@@ -14,9 +14,12 @@ makedepends="gnome-control-center-devel at-spi2-atk-devel
  NetworkManager-devel pulseaudio-devel gtk4-devel gnome-autoar-devel gjs-devel
  gnome-bluetooth-devel pipewire-devel gstreamer1-devel gcr4-devel elogind-devel
  glycin-devel librsvg-devel"
+# gnome-desktop 51: js/misc/dependencies.js imports the GnomeQR typelib at
+# startup; it is not linked, so no shlib dependency covers it
 depends="elogind gnome-control-center gsettings-desktop-schemas gnome-menus
- upower gstreamer1-pipewire gst-plugins-good1 ibus-gtk4 glycin"
-checkdepends="xvfb-run mesa-dri $depends"
+ upower gstreamer1-pipewire gst-plugins-good1 ibus-gtk4 glycin
+ gnome-desktop>=51.0_1"
+checkdepends="xvfb-run mesa-dri ${depends/>=51.0_1/}"
 short_desc="GNOME core user interface"
 maintainer="Orphaned <orphan@voidlinux.org>"
 license="GPL-2.0-or-later"
