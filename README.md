@@ -116,6 +116,11 @@ used to provide.
   ships `subprojects/gvc`.
 - New dependencies: `glycin` (image loading), `librsvg-devel`,
   `elogind-devel`.
+- `depends` on `gnome-desktop>=51.0_1`: the Shell imports the GnomeQR
+  typelib at startup (see [gnome-desktop 51](#gnome-desktop-51)). It is not
+  linked, so the shlib dependency (`>=43.0_1`) allows gnome-desktop 44.
+  `checkdepends` strips the version, which xbps-src rejects in build
+  dependencies. No build option disables it.
 
 ### gdm
 
