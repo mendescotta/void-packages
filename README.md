@@ -80,6 +80,10 @@ used to provide.
   gnome-session exports the session environment, then execs it with the
   session name. It starts, as children of the login session (so gdm and
   polkit find them in it):
+  0. outside the greeter, what upstream's user units do for the autostart
+     entries gnome-session 51 skips (those with `X-GNOME-Autostart-Phase`):
+     `xdg-user-dirs-update`, and gnome-keyring's pkcs11, secrets and ssh
+     components, exporting the `SSH_AUTH_SOCK` it reports;
   1. `gnome-session-service`;
   2. `gnome-shell` (`--mode=gdm`, `initial-setup` or `user`), with a Wayland
      socket name the worker chooses so it can pass it to the plugins;
