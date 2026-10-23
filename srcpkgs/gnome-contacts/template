@@ -1,6 +1,6 @@
 # Template file for 'gnome-contacts'
 pkgname=gnome-contacts
-version=50.0
+version=51.0
 revision=1
 build_style=meson
 hostmakedepends="blueprint-compiler desktop-file-utils docbook-xsl gettext glib-devel gtk4-update-icon-cache gobject-introspection libxslt pkg-config vala"
@@ -12,7 +12,7 @@ maintainer="Enno Boland <gottox@voidlinux.org>"
 license="GPL-2.0-or-later"
 homepage="https://apps.gnome.org//Contacts/"
 distfiles="${GNOME_SITE}/gnome-contacts/${version%%.*}/gnome-contacts-${version}.tar.xz"
-checksum=2a3bea343171be244f12b7c21a40ca38e9a92dea9890393af5e8ac139bc0dab3
+checksum=c8b60752f65a966e0a2c0cbf7c1e1607ee3b4a49318b50b19bdad2ab7fc6706d
 
 pre_build() {
 	if [ "$CROSS_BUILD" ]; then
