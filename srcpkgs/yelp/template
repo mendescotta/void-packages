@@ -1,12 +1,12 @@
 # Template file for 'yelp'
 # keep up to date with yelp-xsl
 pkgname=yelp
-version=42.3
+version=49.2
 revision=1
 build_style=meson
 hostmakedepends="gettext glib-devel itstool pkg-config"
-makedepends="bzip2-devel gtk+3-devel libgcrypt-devel libglib-devel liblzma-devel
- libxml2-devel libxslt-devel sqlite-devel libwebkit2gtk41-devel yelp-xsl libhandy1-devel"
+makedepends="bzip2-devel gtk4-devel libadwaita-devel libglib-devel liblzma-devel
+ libxml2-devel libxslt-devel sqlite-devel libwebkitgtk60-devel yelp-xsl"
 depends="dconf desktop-file-utils hicolor-icon-theme yelp-xsl"
 short_desc="Help browser for GNOME desktop"
 maintainer="Érico Nogueira <ericonr@disroot.org>"
@@ -15,7 +15,7 @@ homepage="https://wiki.gnome.org/Apps/Yelp"
 # change this when it moves to a new major release
 changelog="https://gitlab.gnome.org/GNOME/yelp/-/raw/master/NEWS"
 distfiles="${GNOME_SITE}/yelp/${version%.*}/yelp-${version}.tar.xz"
-checksum=26ccc422679a9e6a7a3aa083d90fcdb347f5f2300be3e01431a30d0cdd2a89a3
+checksum=5afc8e77308451ee45ee919efee5a154ca3c153a90e2a1b58cebf7827ab88ad0
 
 yelp-devel_package() {
 	depends="${sourcepkg}>=${version}_${revision}"
