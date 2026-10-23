@@ -16,10 +16,15 @@ REPO=https://github.com/mendescotta/void-packages.git
 BRANCH=gnome51
 
 # Build order: each package only needs the ones before it.
-PKGS="gsettings-desktop-schemas gnome-settings-daemon mutter gnome-shell
- gnome-control-center gnome-session gdm xdg-desktop-portal-gnome
+PKGS="gsettings-desktop-schemas gnome-desktop gnome-settings-daemon mutter
+ gnome-shell gnome-control-center gnome-session gdm xdg-desktop-portal-gnome
  gnome-shell-extensions adwaita-fonts adwaita-icon-theme gnome-backgrounds
  gnome-initial-setup gnome-keyring gnome-online-accounts gnome-core"
+
+# Rebuilt for libgnome-desktop-3.so.21; built and updated only when installed.
+# removed-packages uninstalls the packages that still need .so.20.
+REBUILDS="cheese eog evince evolution gnome-panel totem libtotem
+ xdg-desktop-portal-gtk openbox removed-packages"
 
 DMS="lightdm sddm lxdm slim xdm emptty greetd"
 
@@ -80,10 +85,13 @@ repo=$PWD/hostdir/binpkgs/$BRANCH
 for pkg in $PKGS; do
 	run ./xbps-src pkg "$pkg"
 done
+for pkg in $REBUILDS; do
+	xbps-query "$pkg" >/dev/null 2>&1 && run ./xbps-src pkg "$pkg"
+done
 
 # gnome-core pulls in the rest; also update the packages already installed.
 install="gnome-core gdm"
-for pkg in $PKGS; do
+for pkg in $PKGS $REBUILDS; do
 	case " $install " in *" $pkg "*) continue ;; esac
 	xbps-query "$pkg" >/dev/null 2>&1 && install="$install $pkg"
 done
