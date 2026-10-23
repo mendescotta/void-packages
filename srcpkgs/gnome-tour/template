@@ -1,6 +1,6 @@
 # Template file for 'gnome-tour'
 pkgname=gnome-tour
-version=48.1
+version=50.0
 revision=1
 build_style=meson
 build_helper=rust
@@ -13,7 +13,7 @@ license="GPL-3.0-or-later"
 homepage="https://gitlab.gnome.org/GNOME/gnome-tour/"
 changelog="https://gitlab.gnome.org/GNOME/gnome-tour/-/raw/main/NEWS"
 distfiles="${GNOME_SITE}/gnome-tour/${version%.*}/gnome-tour-${version}.tar.xz"
-checksum=b8a03b2574eb956abe9af1414161ccb17f830d53600b9c0499cef3bb6f4127c5
+checksum=6ce1187031a365bf226a0cd146f17b4773e7ed450883f7cd502f5ecf432b5325
 
 post_patch() {
 	[ -z "$CROSS_BUILD" ] && return 0
