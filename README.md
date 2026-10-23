@@ -212,6 +212,7 @@ from the branch with only Void's official repository besides the branch's:
 |---|---|
 | greeter | gdm 51 greeter runs: gdm → gdm-wayland-session → `gnome-session-init-worker gnome-login` → gnome-shell, Xwayland, gsd plugins |
 | gnome-desktop 44 | black greeter: `JS ERROR: Requiring GnomeQR, version 4.0: Typelib file … not found`. Fixed by gnome-desktop 51 |
+| greeter at login | the greeter's worker spun at full CPU after the greeter shell exited (bash 5.3 bare `wait` looping on an already-reaped gsd pid), writing GBs to greeter.log. Fixed by waiting on each component (c25543f1da); recheck at the next login |
 | login, power menu, logout | in progress |
 
 An earlier QEMU/KVM test of the same session design passed login, lock and
