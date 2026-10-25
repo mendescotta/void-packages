@@ -14,7 +14,8 @@ flock -n 9 || { echo 'A GNOME session is already active for this user' >&2; exit
 conf=/usr/libexec/gnome-session/sessions
 local_conf=/etc/gnome-session/sessions
 
-declare -A pid_of=() name_of=() restarts=()
+declare -A name_of=() restarts=()
+monitor=
 spawn() {
     local component=$1
     case "$component" in
@@ -31,12 +32,15 @@ spawn() {
             WAYLAND_DISPLAY=$wayland_display "/usr/libexec/$component" 9>&- & ;;
         *) echo "Unknown session component: $component" >&2; return 1 ;;
     esac
-    pid_of[$component]=$!
     name_of[$!]=$component
 }
 stop() {
     trap '' TERM INT HUP
     local pid
+    if [[ -n "$monitor" ]]; then
+        kill "$monitor" 2>/dev/null || true
+        wait "$monitor" 2>/dev/null || true
+    fi
     for pid in "${!name_of[@]}"; do kill "$pid" 2>/dev/null || true; done
     # Each pid on its own: a bare wait can spin forever on a job that bash
     # lists as running but has already reaped (ECHILD).
@@ -103,7 +107,7 @@ if [[ "$session" != gnome-login ]]; then
         while IFS= read -r line; do
             case "$line" in
                 SSH_AUTH_SOCK=?* | GNOME_KEYRING_CONTROL=?*)
-                    export "$line"
+                    export "${line?}"
                     keyring_env+=("${line%%=*}") ;;
             esac
         done < <(gnome-keyring-daemon --start --components=pkcs11,secrets,ssh 9>&-)
@@ -129,14 +133,17 @@ dbus-monitor --session "type='method_call',interface='org.gnome.SessionManager',
 exec 8<"$ready"
 rm -f "$ready"
 spawn gnome-shell
-if grep -q -m1 'member=RegisterClient' <&8; then
-    gdbus call --session --dest org.gnome.SessionManager \
-        --object-path /org/gnome/SessionManager \
-        --method org.gnome.SessionManager.Initialized >/dev/null
+if ! timeout 30 grep -q -m1 'member=RegisterClient' <&8; then
+    echo 'GNOME Shell did not register with the session manager' >&2
+    exit 1
 fi
+gdbus call --session --dest org.gnome.SessionManager \
+    --object-path /org/gnome/SessionManager \
+    --method org.gnome.SessionManager.Initialized >/dev/null
 kill "$monitor" 2>/dev/null || true
 exec 8<&-
 wait "$monitor" 2>/dev/null || true
+monitor=
 
 # gnome-session-initialized.target reached: the settings daemons follow.
 for plugin in "${plugins[@]}"; do spawn "$plugin"; done
@@ -145,9 +152,11 @@ for plugin in "${plugins[@]}"; do spawn "$plugin"; done
 # daemon restarts on failure (Restart=on-failure, at most five times).
 while :; do
     status=0
-    wait -n -p done "${!name_of[@]}" || status=$?
-    component=${name_of[$done]}
-    unset "name_of[$done]"
+    wait -n -p finished_pid "${!name_of[@]}" || status=$?
+    # wait returns 127 without setting the variable when no children remain.
+    [[ -n "${finished_pid:-}" ]] || exit 1
+    component=${name_of[$finished_pid]}
+    unset "name_of[$finished_pid]"
     case "$component" in
         gnome-session-service) exit 0 ;;
         gnome-shell) exit 1 ;;

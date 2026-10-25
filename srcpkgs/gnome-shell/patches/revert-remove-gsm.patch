@@ -9,7 +9,6 @@ Subject: [PATCH 1/2] Reapply "main: Notify gnome-session when we're ready"
 
 This reverts commit d697bdceaefeae49ad0e03df7352884899c3e14a.
 
-Signed-off-by: Achill Gilgenast <achill@achill.org>
 ---
  js/ui/main.js | 16 ++++++++++++++++
  1 file changed, 16 insertions(+)
