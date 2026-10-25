@@ -1,14 +1,13 @@
 # Template file for 'gnome-session'
 pkgname=gnome-session
 version=51.0
-revision=1
+revision=2
 build_style=meson
 configure_args="-Dsystemd=false -Dsystemduserunitdir=/usr/lib/systemd/user"
 hostmakedepends="glib-devel gettext pkg-config xmlto"
-makedepends="elogind-devel gnome-desktop-devel gtk+3-devel json-glib-devel
- libglib-devel libICE-devel libSM-devel xtrans"
+makedepends="elogind-devel gnome-desktop-devel libglib-devel"
 depends="dbus dconf desktop-file-utils bash gsettings-desktop-schemas
- hicolor-icon-theme polkit gnome-settings-daemon"
+ hicolor-icon-theme polkit gnome-settings-daemon util-linux"
 short_desc="GNOME session management utilities"
 maintainer="Orphaned <orphan@voidlinux.org>"
 license="GPL-2.0-or-later, LGPL-2.1-or-later"

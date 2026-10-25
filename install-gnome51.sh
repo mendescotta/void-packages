@@ -23,8 +23,14 @@ PKGS="gsettings-desktop-schemas gnome-desktop gnome-settings-daemon mutter
 
 # Rebuilt for libgnome-desktop-3.so.21; built and updated only when installed.
 # removed-packages uninstalls the packages that still need .so.20.
-REBUILDS="cheese eog evince evolution gnome-panel totem libtotem
- xdg-desktop-portal-gtk openbox removed-packages"
+REBUILDS="cheese cheese-devel libcheese eog eog-devel evince evince-devel libevince
+ evolution evolution-devel gnome-panel gnome-panel-devel totem libtotem totem-devel
+ xdg-desktop-portal-gtk openbox openbox-devel libopenbox removed-packages
+ gnome gnome-apps gnome-games-collection
+ baobab gnome-calculator gnome-calendar gnome-characters gnome-clocks
+ gnome-connections gnome-console gnome-contacts gnome-maps gnome-music
+ gnome-software gnome-system-monitor gnome-text-editor gnome-tour gnome-weather
+ loupe papers simple-scan"
 
 DMS="lightdm sddm lxdm slim xdm emptty greetd"
 
@@ -60,7 +66,7 @@ else
 	exit 1
 fi
 
-for cmd in git xbps-install; do
+for cmd in git xbps-install xbps-query realpath; do
 	command -v "$cmd" >/dev/null || { echo "Missing $cmd." >&2; exit 1; }
 done
 
@@ -68,7 +74,8 @@ if [ -z "$dir" ]; then
 	if [ -x ./xbps-src ]; then dir=.; else dir=./void-packages; fi
 fi
 
-if [ -d "$dir/.git" ]; then
+dir=$(realpath -m "$dir")
+if [ -e "$dir/.git" ]; then
 	run git -C "$dir" fetch "$REPO" "$BRANCH"
 	run git -C "$dir" switch "$BRANCH" ||
 		run git -C "$dir" switch -c "$BRANCH" FETCH_HEAD
@@ -77,16 +84,37 @@ else
 	run git clone --branch "$BRANCH" "$REPO" "$dir"
 fi
 
-run cd "$dir"
+if [ -d "$dir" ]; then
+	cd "$dir"
+else
+	# A dry-run clone does not create the destination.
+	echo "+ cd $dir"
+fi
 # xbps-src puts packages built on a branch other than master in their own repo.
-repo=$PWD/hostdir/binpkgs/$BRANCH
+repo=$dir/hostdir/binpkgs/$BRANCH
 
 [ -d masterdir ] || [ -d masterdir-x86_64 ] || run ./xbps-src binary-bootstrap
 for pkg in $PKGS; do
 	run ./xbps-src pkg "$pkg"
 done
+rebuilt=
 for pkg in $REBUILDS; do
-	xbps-query "$pkg" >/dev/null 2>&1 && run ./xbps-src pkg "$pkg"
+	xbps-query "$pkg" >/dev/null 2>&1 || continue
+	# Build the source package once even when several subpackages are installed.
+	case $pkg in
+		cheese-devel|libcheese) source=cheese ;;
+		eog-devel) source=eog ;;
+		evince-devel|libevince) source=evince ;;
+		evolution-devel) source=evolution ;;
+		gnome-panel-devel) source=gnome-panel ;;
+		libtotem|totem-devel) source=totem ;;
+		openbox-devel|libopenbox) source=openbox ;;
+		gnome-apps|gnome-games-collection) source=gnome ;;
+		*) source=$pkg ;;
+	esac
+	case " $rebuilt " in *" $source "*) continue ;; esac
+	run ./xbps-src pkg "$source"
+	rebuilt="$rebuilt $source"
 done
 
 # gnome-core pulls in the rest; also update the packages already installed.

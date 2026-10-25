@@ -1,0 +1,25 @@
+Keep input context setup working with IBus 1.5.32, which has no preedit
+hint API. Use unstyled preedit text as in Shell 48 on older IBus.
+
+--- a/js/misc/inputMethod.js
++++ b/js/misc/inputMethod.js
+@@ -82,7 +82,8 @@
+         }
+ 
+         this._context.set_client_commit_preedit(true);
+-        this._context.set_preedit_format(IBus.PreeditFormat.HINT);
++        if (IBus.PreeditFormat !== undefined)
++            this._context.set_preedit_format(IBus.PreeditFormat.HINT);
+         this._context.connect('commit-text', this._onCommitText.bind(this));
+         this._context.connect('delete-surrounding-text', this._onDeleteSurroundingText.bind(this));
+         this._context.connect('update-preedit-text-with-mode', this._onUpdatePreeditText.bind(this));
+@@ -120,6 +121,9 @@
+ 
+     _translatePreeditAttributes(ibusAttributes) {
+         const clutterAttrs = [];
++
++        if (IBus.PreeditFormat === undefined || ibusAttributes === null)
++            return clutterAttrs;
+ 
+         for (let i = 0; ibusAttributes.get(i) != null; i++) {
+             const ibusAttr = ibusAttributes.get(i);

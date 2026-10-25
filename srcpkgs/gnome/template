@@ -1,7 +1,7 @@
 # Template file for 'gnome'
 pkgname=gnome
 version=48.0
-revision=4
+revision=5
 metapackage=yes
 short_desc="GNOME meta-package for Void Linux"
 maintainer="Orphaned <orphan@voidlinux.org>"
@@ -9,7 +9,7 @@ license="GPL-2.0-only, LGPL-2.0-only"
 homepage="https://www.gnome.org"
 
 depends="
- gnome-core>=${version}
+ gnome-core>=51.0
  baobab>=${version}
  decibels>=${version}
  epiphany>=${version}
