@@ -2,9 +2,11 @@
 # Build and install the GNOME 51 stack from the gnome51 branch on a
 # runit Void Linux system.
 #
-# Usage: ./install-gnome51.sh [-n] [-e] [-d dir]
+# Usage: ./install-gnome51.sh [-n] [-e] [-r] [-d dir]
 #   -n      dry run: print the commands instead of running them
 #   -e      enable gdm in /var/service, removing other display managers
+#   -r      also build and install runit-settingsd (hostname1, timedate1
+#           and locale1 D-Bus services for runit)
 #   -d dir  void-packages checkout to use or create (default: current
 #           directory if it is one, else ./void-packages)
 #
@@ -16,7 +18,8 @@ REPO=https://github.com/mendescotta/void-packages.git
 BRANCH=gnome51
 
 # Build order: each package only needs the ones before it.
-PKGS="gsettings-desktop-schemas gnome-desktop gnome-settings-daemon mutter
+PKGS="accountsservice dconf gjs msgraph gvfs tinysparql localsearch
+ gnome-bluetooth gnome-user-docs gsettings-desktop-schemas gnome-desktop gnome-settings-daemon mutter
  gnome-shell gnome-control-center gnome-session gdm xdg-desktop-portal-gnome
  gnome-shell-extensions adwaita-fonts adwaita-icon-theme gnome-backgrounds
  gnome-initial-setup gnome-keyring gnome-online-accounts gnome-core"
@@ -30,18 +33,20 @@ REBUILDS="cheese cheese-devel libcheese eog eog-devel evince evince-devel libevi
  baobab gnome-calculator gnome-calendar gnome-characters gnome-clocks
  gnome-connections gnome-console gnome-contacts gnome-maps gnome-music
  gnome-software gnome-system-monitor gnome-text-editor gnome-tour gnome-weather
- loupe papers simple-scan"
+ glycin libshumate loupe papers simple-scan"
 
 DMS="lightdm sddm lxdm slim xdm emptty greetd"
 
 dry=
 enable=
+settingsd=
 dir=
 
-while getopts ned: opt; do
+while getopts nerd: opt; do
 	case $opt in
 	n) dry=1 ;;
 	e) enable=1 ;;
+	r) settingsd=1 ;;
 	d) dir=$OPTARG ;;
 	*) sed -n '5,10s/^# \{0,1\}//p' "$0"; exit 1 ;;
 	esac
@@ -94,6 +99,7 @@ fi
 repo=$dir/hostdir/binpkgs/$BRANCH
 
 [ -d masterdir ] || [ -d masterdir-x86_64 ] || run ./xbps-src binary-bootstrap
+[ -z "$settingsd" ] || PKGS="$PKGS runit-settingsd"
 for pkg in $PKGS; do
 	run ./xbps-src pkg "$pkg"
 done
@@ -119,6 +125,7 @@ done
 
 # gnome-core pulls in the rest; also update the packages already installed.
 install="gnome-core gdm"
+[ -z "$settingsd" ] || install="$install runit-settingsd"
 for pkg in $PKGS $REBUILDS; do
 	case " $install " in *" $pkg "*) continue ;; esac
 	xbps-query "$pkg" >/dev/null 2>&1 && install="$install $pkg"
