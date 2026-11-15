@@ -1,12 +1,12 @@
 # Template file for 'msgraph'
 pkgname=msgraph
-version=0.2.3
+version=0.3.5
 revision=1
 build_style=meson
 build_helper=gir
 configure_args="$(vopt_bool gtk_doc gtk_doc)"
 hostmakedepends="pkg-config $(vopt_if gtk_doc gi-docgen)"
-makedepends="glib-devel gnome-online-accounts-devel json-glib-devel rest-devel
+makedepends="glib-devel gnome-online-accounts-devel json-glib-devel libsoup3-devel
  uhttpmock-devel"
 short_desc="Library to access MS Graph API for Office 365"
 maintainer="cinerea0 <cinerea0@protonmail.com>"
@@ -14,7 +14,7 @@ license="LGPL-3.0-or-later"
 homepage="https://gitlab.gnome.org/GNOME/msgraph"
 changelog="https://gitlab.gnome.org/GNOME/msgraph/-/raw/main/NEWS"
 distfiles="${GNOME_SITE}/msgraph/${version%.*}/msgraph-${version}.tar.xz"
-checksum=ed42e800cb7f0a07477cd9e3e744cdc1a240a6ad7ab96b8a875806267a9fddb0
+checksum=e3dadbf638d0207040f6da6d852db516e463423da710af6cbc35d00572f17d9b
 
 build_options="gtk_doc"
 
@@ -25,7 +25,7 @@ fi
 msgraph-devel_package() {
 	short_desc+=" - development files"
 	depends="${sourcepkg}-${version}_${revision} glib-devel
-	 gnome-online-accounts-devel json-glib-devel libsoup3-devel rest-devel"
+	 gnome-online-accounts-devel json-glib-devel libsoup3-devel"
 	pkg_install() {
 		vmove usr/include
 		vmove usr/lib/*.so
