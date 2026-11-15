@@ -781,7 +781,7 @@ libclutter-1.0.so.0 clutter-1.14.0_1
 libavfs.so.1 libavfs-1.2.0_1
 libgjs.so.0 gjs-1.65.2_1
 libtelepathy-glib.so.0 telepathy-glib-0.15.5_1
-libaccountsservice.so.0 accountsservice-0.6.4_1
+libaccountsservice.so.1 accountsservice-26.27.3_1
 libfolks.so.26 folks-0.15.0_1
 libfolks-dummy.so.26 folks-0.15.0_1
 libfolks-telepathy.so.26 folks-0.15.0_1
