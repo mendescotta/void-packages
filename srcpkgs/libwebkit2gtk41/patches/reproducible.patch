@@ -4,20 +4,10 @@ Date:   Wed Jan 5 17:50:07 2022 +0100
 
     reproducible build
 
---- a/Source/WebCore/bindings/scripts/CodeGenerator.pm
-+++ b/Source/WebCore/bindings/scripts/CodeGenerator.pm
-@@ -325,7 +325,7 @@ sub MergeExtendedAttributesFromSupplemen
- {
-     my ($object, $supplementalExtendedAttributes, $property, $context) = @_;
- 
--    foreach my $extendedAttributeName (keys %{$supplementalExtendedAttributes}) {
-+    foreach my $extendedAttributeName (sort keys %{$supplementalExtendedAttributes}) {
-         my $isAllowed = 0;
-         for my $contextAllowed (@{$idlAttributes->{$extendedAttributeName}->{"contextsAllowed"}}) {
-             if ($contextAllowed eq $context) {
+
 --- a/Source/WebCore/bindings/scripts/CodeGeneratorJS.pm
 +++ b/Source/WebCore/bindings/scripts/CodeGeneratorJS.pm
-@@ -3431,7 +3431,7 @@ sub GenerateHeader
+@@ -3587,7 +3587,7 @@
          } else {
              push(@headerContent, "    static constexpr unsigned StructureFlags = Base::StructureFlags");
          }
@@ -26,7 +16,7 @@ Date:   Wed Jan 5 17:50:07 2022 +0100
              push(@headerContent, " | " . $structureFlag);
          }
          push(@headerContent, ";\n");
-@@ -8041,7 +8041,7 @@ sub WriteData
+@@ -8523,7 +8523,7 @@
  
      my @includes = ();
      my %implIncludeConditions = ();
@@ -35,25 +25,25 @@ Date:   Wed Jan 5 17:50:07 2022 +0100
          next if $headerIncludes{$include};
          next if $headerTrailingIncludes{$include};
  
-@@ -8084,7 +8084,7 @@ sub WriteData
+@@ -8632,7 +8632,7 @@
      $contents = join "", @headerContentHeader;
  
      @includes = ();
 -    foreach my $include (keys %headerIncludes) {
 +    foreach my $include (sort keys %headerIncludes) {
-         $include = "\"$include\"" unless $include =~ /^["<]/; # "
-         $include = SubstituteHeader($include);
-         push @includes, $include;
-@@ -8098,7 +8098,7 @@ sub WriteData
+         if (IsPrivateHeader("JS$name.h")) {
+            $include = "<WebCore/$include>" unless $include =~ /^["<]/; # "
+         } else {
+@@ -8651,7 +8651,7 @@
      $contents .= join "", @headerContent;
  
      @includes = ();
 -    foreach my $include (keys %headerTrailingIncludes) {
 +    foreach my $include (sort keys %headerTrailingIncludes) {
-         $include = "\"$include\"" unless $include =~ /^["<]/; # "
-         push @includes, $include;
-     }
-@@ -8171,7 +8171,7 @@ sub GeneratePrototypeDeclaration
+         if (IsPrivateHeader("JS$name.h")) {
+            $include = "<WebCore/$include>" unless $include =~ /^["<]/; # "
+         } else {
+@@ -8726,7 +8726,7 @@
      if (%structureFlags) {
          push(@$outputArray, "public:\n");
          push(@$outputArray, "    static constexpr unsigned StructureFlags = Base::StructureFlags");
@@ -62,3 +52,14 @@ Date:   Wed Jan 5 17:50:07 2022 +0100
              push(@$outputArray, " | " . $structureFlag);
          }
          push(@$outputArray, ";\n");
+--- a/Source/WebCore/bindings/scripts/CodeGenerator.pm
++++ b/Source/WebCore/bindings/scripts/CodeGenerator.pm
+@@ -333,7 +333,7 @@
+ {
+     my ($object, $supplementalExtendedAttributes, $property, $context) = @_;
+ 
+-    foreach my $extendedAttributeName (keys %{$supplementalExtendedAttributes}) {
++    foreach my $extendedAttributeName (sort keys %{$supplementalExtendedAttributes}) {
+         my $isAllowed = 0;
+         for my $contextAllowed (@{$idlAttributes->{$extendedAttributeName}->{"contextsAllowed"}}) {
+             if ($contextAllowed eq $context) {
