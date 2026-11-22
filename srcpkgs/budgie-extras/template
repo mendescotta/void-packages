@@ -1,0 +1,22 @@
+# Template file for 'budgie-extras'
+pkgname=budgie-extras
+version=2.3.1
+revision=1
+build_style=meson
+configure_args="-Dfor-wayland=true"
+hostmakedepends="pkg-config vala intltool gettext glib-devel
+ gobject-introspection"
+makedepends="budgie-desktop-devel gtk+3-devel libpeas2-devel libgee-devel
+ json-glib-devel libnotify-devel libsoup3-devel libwnck-devel
+ libxfce4windowing-devel gtk-layer-shell-devel libhandy1-devel
+ gnome-settings-daemon-devel NetworkManager-devel libnma-devel
+ gnome-menus-devel at-spi2-core-devel libXrandr-devel granite-devel
+ AppStream-devel libkeybinder3-devel"
+depends="budgie-desktop python3-gobject"
+short_desc="Additional applets and miniapps for the Budgie desktop"
+maintainer="Orphaned <orphan@voidlinux.org>"
+license="GPL-2.0-or-later, GPL-3.0-or-later"
+homepage="https://github.com/UbuntuBudgie/budgie-extras"
+changelog="https://raw.githubusercontent.com/UbuntuBudgie/budgie-extras/master/NEWS"
+distfiles="https://github.com/UbuntuBudgie/budgie-extras/releases/download/v${version}/budgie-extras-${version}.tar.xz"
+checksum=4a82fe78936c2b3c5a05deb957472cfcd471bc6745029743c03ea92ec7c07b93
