@@ -1,7 +1,7 @@
 # Template file for 'libgweather'
 pkgname=libgweather
 reverts="40.0_1"
-version=4.4.4
+version=4.6.0
 revision=1
 build_style=meson
 build_helper="gir"
@@ -9,15 +9,15 @@ configure_args="$(vopt_bool gir enable_vala) $(vopt_bool gir introspection)
  $(vopt_bool gtk_doc gtk_doc) -Dzoneinfo_dir=/usr/share/zoneinfo"
 hostmakedepends="glib-devel gettext pkg-config python3-gobject-devel
  $(vopt_if gir vala) $(vopt_if gtk_doc gi-docgen)"
-makedepends="geocode-glib-devel libsoup3-devel json-glib-devel libxml2-devel"
-depends="tzdata"
+makedepends="gweather-locations geocode-glib-devel libsoup3-devel json-glib-devel libxml2-devel"
+depends="tzdata gweather-locations"
 short_desc="GNOME Weather information access library"
 maintainer="Orphaned <orphan@voidlinux.org>"
 license="LGPL-2.1-or-later"
 homepage="https://wiki.gnome.org/Projects/LibGWeather"
 changelog="https://gitlab.gnome.org/GNOME/libgweather/-/raw/main/NEWS"
 distfiles="${GNOME_SITE}/libgweather/${version%.*}/libgweather-${version}.tar.xz"
-checksum=7017677753cdf7d1fdc355e4bfcdb1eba8369793a8df24d241427a939cbf4283
+checksum=7f5d0e8c9685ef2ff46c2f3a57cae48d7bf3540b2d83921f889ef28e6a876788
 
 build_options="gir gtk_doc"
 build_options_default="gir gtk_doc"
