@@ -1,6 +1,6 @@
 # Template file for 'gnome-mines'
 pkgname=gnome-mines
-version=48.1
+version=50.0
 revision=1
 build_style=meson
 hostmakedepends="gettext glib-devel itstool pkg-config vala desktop-file-utils
@@ -12,4 +12,4 @@ license="GPL-3.0-or-later"
 homepage="https://wiki.gnome.org/Apps/Mines"
 changelog="https://gitlab.gnome.org/GNOME/gnome-mines/-/raw/master/NEWS"
 distfiles="${GNOME_SITE}/${pkgname}/${version%.*}/${pkgname}-${version}.tar.xz"
-checksum=ef4b2d2dde3bec614157edde4d9189cc6afe692952a2dd55b2870e2e62ed8104
+checksum=9d3a44122d04af787c64a869ef90dd54ea7500e5b48be457c6d64d9b2773fb9f
