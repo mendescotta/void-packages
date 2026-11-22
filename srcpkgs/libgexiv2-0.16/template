@@ -1,6 +1,6 @@
 # Template file for 'libgexiv2-0.16'
 pkgname=libgexiv2-0.16
-version=0.16.0
+version=0.16.2
 revision=1
 build_style=meson
 build_helper="gir"
@@ -13,7 +13,7 @@ license="GPL-2.0-or-later"
 homepage="https://wiki.gnome.org/Projects/gexiv2"
 changelog="https://gitlab.gnome.org/GNOME/gexiv2/-/raw/master/NEWS"
 distfiles="${GNOME_SITE}/gexiv2/${version%.*}/gexiv2-${version}.tar.xz"
-checksum=d96f895f24539f966f577b2bb2489ae84f8232970a8d0c064e4a007474a77bbb
+checksum=aad9e240fdffbe85e390f46ee0a567e251baea5c29c3d8690260388683dc8d0a
 
 build_options="gir vala"
 build_options_default="gir vala"
