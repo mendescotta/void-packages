@@ -1,0 +1,13 @@
+# Template file for 'gweather-locations'
+pkgname=gweather-locations
+version=2026.2
+revision=1
+build_style=meson
+hostmakedepends="pkg-config gettext glib-devel python3-gobject"
+makedepends="libglib-devel"
+short_desc="Locations database for libgweather"
+maintainer="Orphaned <orphan@voidlinux.org>"
+license="GPL-2.0-or-later"
+homepage="https://gitlab.gnome.org/GNOME/gweather-locations"
+distfiles="${GNOME_SITE}/gweather-locations/${version%.*}/gweather-locations-${version}.tar.xz"
+checksum=e7570a3661e0a752a06387b2032585cf588fc56770b1f9f39f1a55d17b2835fe
