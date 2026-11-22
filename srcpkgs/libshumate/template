@@ -1,6 +1,6 @@
 # Template file for 'libshumate'
 pkgname=libshumate
-version=1.6.1
+version=1.7.0
 revision=1
 build_style=meson
 build_helper="gir"
@@ -17,7 +17,7 @@ license="LGPL-2.1-or-later"
 homepage="https://wiki.gnome.org/Projects/libshumate"
 changelog="https://gitlab.gnome.org/GNOME/libshumate/-/raw/main/NEWS"
 distfiles="${GNOME_SITE}/libshumate/${version%.*}/libshumate-${version}.tar.xz"
-checksum=b36aad34500791785f546684d0f2ed644e4819ff4e85ae67a2245f159eccb2d4
+checksum=3896cc4b6a7bf83141c27df23ce48cdd68467603bc6b764960307cdcbbef80e5
 make_check_pre="dbus-run-session xvfb-run"
 
 build_options="gir"
