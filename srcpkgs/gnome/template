@@ -1,7 +1,7 @@
 # Template file for 'gnome'
 pkgname=gnome
 version=48.0
-revision=5
+revision=6
 metapackage=yes
 short_desc="GNOME meta-package for Void Linux"
 maintainer="Orphaned <orphan@voidlinux.org>"
@@ -40,9 +40,9 @@ depends="
 _apps_depends="
  Endeavour>=43
  bijiben>=40.1
+ d-spy>=${version}
  dconf-editor>=45.0.1
  decibels>=${version}
- devhelp>=43
  epiphany>=${version}
  evolution>=3.52.0
  ghex>=46.0
@@ -54,13 +54,9 @@ _apps_depends="
  gnome-clocks>=${version}
  gnome-connections>=${version}
  gnome-console>=${version}
- gnome-dictionary>=40.0
  gnome-disk-utility>=46.1
  gnome-font-viewer>=${version}
  gnome-maps>=${version}
- gnome-nettool>=42
- gnome-photos>=44.0
- gnome-screenshot>=41.0
  gnome-sound-recorder>=42
  gnome-system-monitor>=${version}
  gnome-text-editor>=${version}
@@ -68,9 +64,7 @@ _apps_depends="
  gnote>=47.2
  polari>=46.0
  rygel>=0.42.5
- simple-scan>=46.0
- totem>=43.0
- vino>=3.22.0"
+ simple-scan>=46.0"
 case "$XBPS_TARGET_MACHINE" in
 	i686*|arm*) ;;
 	*) _apps_depends+=" gnome-boxes>=${version}" ;;

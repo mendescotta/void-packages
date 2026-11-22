@@ -1,6 +1,6 @@
 # Template file for 'epiphany'
 pkgname=epiphany
-version=50.6
+version=51.2
 revision=1
 build_style=meson
 configure_args="-Dunit_tests=disabled"
@@ -8,13 +8,13 @@ hostmakedepends="gettext glib-devel itstool pkg-config gtk-update-icon-cache
  desktop-file-utils blueprint-compiler"
 makedepends="gcr4-devel gsettings-desktop-schemas-devel gstreamer1-devel
  iso-codes json-glib-devel libadwaita-devel libarchive-devel
- libportal-gtk4-devel libsecret-devel libsoup3-devel
+ libportal-gtk4-devel libpwquality-devel libsecret-devel libsoup3-devel
  libwebkitgtk60-devel libxml2-devel nettle-devel sqlite-devel"
 depends="desktop-file-utils hicolor-icon-theme iso-codes"
 short_desc="Intuitive GNOME web browser"
 maintainer="oreo639 <oreo6391@gmail.com>"
 license="GPL-2.0-or-later"
 homepage="https://wiki.gnome.org/Apps/Web"
-changelog="https://gitlab.gnome.org/GNOME/epiphany/-/raw/gnome-50/NEWS"
+changelog="https://gitlab.gnome.org/GNOME/epiphany/-/raw/gnome-51/NEWS"
 distfiles="${GNOME_SITE}/epiphany/${version%%.*}/epiphany-${version}.tar.xz"
-checksum=458222a8694cfc914e7a2d6de9879067001a8d65e00a907d96112059c67ad446
+checksum=e45d93483d62beeb26b36b39fe2f8cb5511ffe6ddccc7fedff55b1e3cc0a5c30
