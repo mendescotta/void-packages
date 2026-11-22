@@ -1,7 +1,7 @@
 # Template file for 'evolution-data-server'
 pkgname=evolution-data-server
-version=3.56.2
-revision=4
+version=3.62.1
+revision=1
 build_style=cmake
 build_helper="gir qemu"
 configure_args=" -DSYSCONF_INSTALL_DIR=/etc
@@ -21,7 +21,7 @@ license="LGPL-2.1-only"
 homepage="https://wiki.gnome.org/Apps/Evolution"
 changelog="https://gitlab.gnome.org/GNOME/evolution-data-server/-/raw/gnome-48/NEWS"
 distfiles="${GNOME_SITE}/evolution-data-server/${version%.*}/evolution-data-server-${version}.tar.xz"
-checksum=df4ec29950f29a76eac6fbe0f814c48d2cef7d3fdb905002a4a883dd761ce93c
+checksum=b75c823445d7d30bca797eee929809e8d389abbb8d471f68ae2af60972779f26
 make_check=ci-skip # flaky in CI
 
 build_options="gir"
