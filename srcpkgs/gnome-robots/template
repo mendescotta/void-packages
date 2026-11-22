@@ -1,18 +1,18 @@
 # Template file for 'gnome-robots'
 pkgname=gnome-robots
-version=41.2
+version=50.0
 revision=1
 build_style=meson
 build_helper=rust
 hostmakedepends="gettext glib-devel itstool pkg-config cargo
  gtk4-update-icon-cache desktop-file-utils"
-makedepends="libadwaita-devel librsvg-devel rust-std"
+makedepends="libadwaita-devel librsvg-devel rust-std glycin-devel glycin-gtk4-devel"
 short_desc="GNOME classic robots game"
 maintainer="Orphaned <orphan@voidlinux.org>"
 license="GPL-2.0-or-later"
 homepage="https://wiki.gnome.org/Apps/Robots"
 distfiles="${GNOME_SITE}/${pkgname}/${version%.*}/${pkgname}-${version}.tar.xz"
-checksum=9121c2f836812043feef2ba661cd5d0fd48e3d6319c43941b9fdd158b9b0eb91
+checksum=617e574c15f90618b82493c9939d717596ad2ce1ff1de0aad5c9c3976633d379
 
 post_patch() {
 	if [ "$CROSS_BUILD" ]; then
