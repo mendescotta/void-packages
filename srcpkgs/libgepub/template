@@ -1,6 +1,6 @@
 # Template file for 'libgepub'
 pkgname=libgepub
-version=0.7.1
+version=0.7.3
 revision=1
 build_style=meson
 build_helper="gir"
@@ -12,7 +12,7 @@ maintainer="Enno Boland <gottox@voidlinux.org>"
 license="LGPL-2.1-or-later"
 homepage="http://live.gnome.org/"
 distfiles="${GNOME_SITE}/${pkgname}/${version%.*}/${pkgname}-${version}.tar.xz"
-checksum=a3e4b31a232659d26a54b9121b3882c3d7397c3cf44ae5c64b86700980bc7f60
+checksum=5a56695aa8a9132d67c0792a40f252ce0a48d9d032b4e1a8a6ce98af14fd5e1b
 
 # Package build options
 build_options="gir"
