@@ -1,6 +1,6 @@
 # Template file for 'zenity'
 pkgname=zenity
-version=4.0.5
+version=4.2.2
 revision=1
 build_style=meson
 configure_args="-Dwebkitgtk=$(vopt_if webkit true false)"
@@ -14,7 +14,7 @@ homepage="https://help.gnome.org/users/zenity/"
 #changelog="https://gitlab.gnome.org/GNOME/zenity/-/raw/master/NEWS"
 changelog="https://gitlab.gnome.org/GNOME/zenity/-/raw/zenity-4-0/NEWS"
 distfiles="${GNOME_SITE}/zenity/${version%.*}/zenity-${version}.tar.xz"
-checksum=8a3ffe7751bed497a758229ece07be9114ad4e46a066abae4e5f31d6da4c0e9e
+checksum=019186a996096ef4fc356e21577b5673f5baa3a29ac8e3d608b753371c18018d
 
 build_options="webkit"
 build_options_default="webkit"
