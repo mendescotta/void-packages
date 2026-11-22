@@ -1,6 +1,6 @@
 # Template file for 'gnome-tetravex'
 pkgname=gnome-tetravex
-version=3.38.2
+version=3.38.3
 revision=1
 build_style=meson
 hostmakedepends="gettext itstool pkg-config vala glib-devel"
@@ -10,4 +10,4 @@ maintainer="Orphaned <orphan@voidlinux.org>"
 license="GPL-2.0-or-later"
 homepage="https://wiki.gnome.org/Apps/Tetravex"
 distfiles="${GNOME_SITE}/${pkgname}/${version%.*}/${pkgname}-${version}.tar.xz"
-checksum=1fcdf10979b9a3526009d783a1c88a389918f360da4edb44fba25c71f186911b
+checksum=83849ac064d456e1dd46b6e201c686152624c3d1ec4b99935985a49aa79172cb
