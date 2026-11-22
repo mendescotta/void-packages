@@ -1,0 +1,69 @@
+sd_session_get_username() was added in systemd 254; Void ships elogind 252.
+Look the name up from the session's uid instead. Drop with elogind >= 254.
+
+--- a/daemon/gdm-manager.c
++++ b/daemon/gdm-manager.c
+@@ -38,6 +38,30 @@
+ 
+ #include <systemd/sd-login.h>
+ 
++#include <errno.h>
++#include <pwd.h>
++
++/* elogind < 254 lacks sd_session_get_username() */
++static int
++sd_session_get_username_compat (const char *session, char **username)
++{
++        struct passwd *pw;
++        uid_t uid;
++        int r;
++
++        r = sd_session_get_uid (session, &uid);
++        if (r < 0)
++                return r;
++
++        pw = getpwuid (uid);
++        if (pw == NULL)
++                return -ENOENT;
++
++        *username = g_strdup (pw->pw_name);
++        return 0;
++}
++#define sd_session_get_username sd_session_get_username_compat
++
+ #include "gdm-common.h"
+ #include "gdm-file-utils.h"
+ 
+--- a/utils/gdm-new-session.c
++++ b/utils/gdm-new-session.c
+@@ -10,6 +10,30 @@
+ #include <sysexits.h>
+ #include <systemd/sd-login.h>
+ 
++#include <errno.h>
++#include <pwd.h>
++
++/* elogind < 254 lacks sd_session_get_username() */
++static int
++sd_session_get_username_compat (const char *session, char **username)
++{
++        struct passwd *pw;
++        uid_t uid;
++        int r;
++
++        r = sd_session_get_uid (session, &uid);
++        if (r < 0)
++                return r;
++
++        pw = getpwuid (uid);
++        if (pw == NULL)
++                return -ENOENT;
++
++        *username = g_strdup (pw->pw_name);
++        return 0;
++}
++#define sd_session_get_username sd_session_get_username_compat
++
+ #define GDM_DBUS_NAME                        "org.gnome.DisplayManager"
+ #define GDM_LOCAL_DISPLAY_FACTORY_PATH       "/org/gnome/DisplayManager/LocalDisplayFactory"
+ #define GDM_REMOTE_DISPLAY_FACTORY_PATH      "/org/gnome/DisplayManager/RemoteDisplayFactory"
