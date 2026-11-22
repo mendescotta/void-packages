@@ -1,0 +1,42 @@
+--- a/src/grd-daemon-utils.c
++++ b/src/grd-daemon-utils.c
+@@ -150,17 +150,30 @@
+ char *
+ grd_get_session_id_from_pidfd (int pidfd)
+ {
+-  char *session_id = NULL;
+-  int res;
++  /* elogind does not provide sd_pidfd_get_session(); resolve the pid
++   * from /proc/self/fdinfo instead. */
++  g_autofree char *fdinfo_path = NULL;
++  g_autofree char *fdinfo = NULL;
++  const char *pid_line;
++  gint64 pid;
+ 
+-  res = sd_pidfd_get_session (pidfd, &session_id);
+-  if (res < 0 && res != -ENODATA)
+-    {
+-      g_warning ("Failed to retrieve session information for "
+-                 "pidfd %d: %s", pidfd, strerror (-res));
+-    }
++  fdinfo_path = g_strdup_printf ("/proc/self/fdinfo/%d", pidfd);
++  if (!g_file_get_contents (fdinfo_path, &fdinfo, NULL, NULL))
++    return NULL;
+ 
+-  return session_id;
++  if (g_str_has_prefix (fdinfo, "Pid:"))
++    pid_line = fdinfo;
++  else
++    pid_line = strstr (fdinfo, "\nPid:");
++  if (!pid_line)
++    return NULL;
++  pid_line += pid_line == fdinfo ? 4 : 5;
++
++  pid = g_ascii_strtoll (pid_line, NULL, 10);
++  if (pid <= 0)
++    return NULL;
++
++  return grd_get_session_id_from_pid ((pid_t) pid);
+ }
+ 
+ static gboolean
