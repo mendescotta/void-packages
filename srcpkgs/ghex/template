@@ -1,6 +1,6 @@
 # Template file for 'ghex'
 pkgname=ghex
-version=46.3
+version=50.4
 revision=1
 build_style=meson
 build_helper=gir
@@ -16,7 +16,7 @@ license="GPL-2.0-only, GFDL-1.1-only"
 homepage="https://gitlab.gnome.org/GNOME/ghex"
 changelog="https://gitlab.gnome.org/GNOME/ghex/-/raw/ghex-46/NEWS"
 distfiles="${GNOME_SITE}/ghex/${version%.*}/ghex-${version}.tar.xz"
-checksum=ea16595dfba0a97b55dd106305d56ba2baee95de0b13b75e75966cc31f9b3ec9
+checksum=e2bcf62438edaf04ca961aef8dafd35a2d208aa45f00ee557000b37214c0972e
 
 build_options="gir gtk_doc"
 build_options_default="gir gtk_doc"
