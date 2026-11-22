@@ -1,6 +1,6 @@
 # Template file for 'mm-common'
 pkgname=mm-common
-version=1.0.7
+version=1.0.8
 revision=1
 build_style=meson
 hostmakedepends="pkg-config"
@@ -10,4 +10,4 @@ maintainer="Orphaned <orphan@voidlinux.org>"
 license="LGPL-2.1-or-later"
 homepage="https://gtkmm.org/en/"
 distfiles="${GNOME_SITE}/mm-common/${version%.*}/mm-common-${version}.tar.xz"
-checksum=494abfce781418259b1e9d8888c73af4de4b6f3be36cc75d9baa8baa0f2a7a39
+checksum=b189ee636e839d12c00dabefae099fd488ab2358dec24d264761c011950b02a9
