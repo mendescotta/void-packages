@@ -1,6 +1,6 @@
 # Template file for 'gucharmap'
 pkgname=gucharmap
-version=16.0.1
+version=18.0.0
 revision=1
 build_style=meson
 build_helper="gir"
@@ -23,13 +23,13 @@ distfiles="https://gitlab.gnome.org/GNOME/gucharmap/-/archive/${version}/gucharm
  https://www.unicode.org/Public/${version%%.*}.0.0/ucd/Scripts.txt
  https://www.unicode.org/Public/${version%%.*}.0.0/ucd/UnicodeData.txt
  https://www.unicode.org/Public/${version%%.*}.0.0/ucd/Unihan.zip"
-checksum="d687d3a3d4990ea7aff4066e17768ec9fefe7b3129b98090c750b8d7074b4764
- f3907b395d410f1b97342292ca6bc83dd12eb4b205f2a0c48efdef99e517d7b0
- 60caa81b99a4dfb0bc5d38440d323073e3f356f46f9ca7869da848cd0715408b
- 6a299e9259d07c2a941fdc967e2117e1246d56aa4e133caff86dfc0845715679
- 9e88f0a677df47311106340be8ede2ecdacd9c1c931831218d2be6d5508e0039
- ff58e5823bd095166564a006e47d111130813dcf8bf234ef79fa51a870edb48f
- b8f000df69de7828d21326a2ffea462b04bc7560022989f7cc704f10521ef3e0"
+checksum="564aca0ed8a25e4880ed5298de033889dfbc11bd49af1d7ee2959a5f46eb8f1d
+ a58f8d322f3c5e254f9f97b1cbf76a454a7e02de6ac35619a5e4f27aaabfd553
+ 58b04334e3a31f9612694bbc3f6bff4a302b7d424565bca9c47e30aa74f8dbac
+ e0732f7cb47a08ee2186c83a18a91ae277126e8099b53c432b4c3e32488dac9b
+ 0071fd81b6aeae25f6e8bce8efec3066a6476a91b49bdb2f52dc76e817862a6a
+ 0736451de439ae7baf1425136617da495e09ee5afbe6e394374db7009ea08950
+ 4c93ea9c1f636451729a840978f1667a53886af37ba854fdcce109721c63d43e"
 skip_extraction="Blocks.txt DerivedAge.txt NamesList.txt Scripts.txt UnicodeData.txt Unihan.zip"
 
 # Package build options
