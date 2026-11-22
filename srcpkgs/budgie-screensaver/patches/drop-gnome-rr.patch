@@ -1,0 +1,47 @@
+--- a/src/gs-fade.c
++++ b/src/gs-fade.c
+@@ -41,9 +41,8 @@
+ #include "gs-fade.h"
+ #include "gs-debug.h"
+ 
+-#define GNOME_DESKTOP_USE_UNSTABLE_API
+-
+-#include <libgnome-desktop/gnome-rr.h>
++/* libgnome-desktop gnome-rr.h was removed in GNOME 51, so the XRandR
++ * gamma fade is compiled out; the XF86VidMode and gamma ramp paths remain. */
+ 
+ /* XFree86 4.x+ Gamma fading */
+ 
+@@ -74,7 +73,7 @@
+ 	/* one per crtc in randr mode */
+ 	struct GSGammaInfo *info;
+ 	/* one per screen in theory */
+-	GnomeRRScreen      *rrscreen;
++	gpointer            rrscreen;	/* unused: XRandR fade is disabled */
+ #ifdef HAVE_XF86VMODE_GAMMA
+ 	/* one per screen also */
+ 	XF86VidModeGamma    vmg;
+@@ -460,6 +459,7 @@
+ 	screen_priv->fade_type = FADE_TYPE_NONE;
+ }
+ 
++#if 0 /* XRandR gamma fading, disabled (no gnome-rr) */
+ /* Xrandr support */
+ 
+ static gboolean xrandr_fade_setup (GSFade *fade, int screen_idx)
+@@ -618,6 +618,15 @@
+ 	screen_priv->fade_set_alpha_gamma = xrandr_fade_set_alpha_gamma;
+ }
+ 
++#endif /* XRandR gamma fading */
++
++/* XRandR gamma fading needs gnome-rr, which is no longer provided. */
++static void
++check_randr_extension (GSFade *fade, int screen_idx)
++{
++	fade->priv->screen_priv[screen_idx].fade_type = FADE_TYPE_NONE;
++}
++
+ static gboolean
+ gs_fade_set_alpha (GSFade *fade,
+ 		   gdouble alpha)
