@@ -1,6 +1,6 @@
 # Template file for 'gupnp-av'
 pkgname=gupnp-av
-version=0.14.1
+version=0.14.5
 revision=1
 build_style=meson
 build_helper="gir"
@@ -13,7 +13,7 @@ license="LGPL-2.1-or-later"
 homepage="http://gupnp.org/"
 changelog="https://gitlab.gnome.org/GNOME/gupnp-av/-/raw/master/NEWS"
 distfiles="${GNOME_SITE}/gupnp-av/${version%.*}/gupnp-av-${version}.tar.xz"
-checksum=b79ce0cc4b0c66d9c54bc22183a10e5709a0011d2af272025948efcab33a3e4f
+checksum=93918fcf5af529fda5b3d2d9fc3b77cd93df88064939b82f249f5577d8de1c02
 
 # Package build options
 build_options="gir vala"
