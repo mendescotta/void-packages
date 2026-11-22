@@ -6,7 +6,7 @@ build_style=meson
 build_helper=gir
 configure_args="$(vopt_bool gtk_doc gtk_doc)"
 hostmakedepends="pkg-config $(vopt_if gtk_doc gi-docgen)"
-makedepends="glib-devel gnome-online-accounts-devel json-glib-devel rest-devel
+makedepends="glib-devel gnome-online-accounts-devel json-glib-devel libsoup3-devel
  uhttpmock-devel"
 short_desc="Library to access MS Graph API for Office 365"
 maintainer="cinerea0 <cinerea0@protonmail.com>"
@@ -25,7 +25,7 @@ fi
 msgraph-devel_package() {
 	short_desc+=" - development files"
 	depends="${sourcepkg}-${version}_${revision} glib-devel
-	 gnome-online-accounts-devel json-glib-devel libsoup3-devel rest-devel"
+	 gnome-online-accounts-devel json-glib-devel libsoup3-devel"
 	pkg_install() {
 		vmove usr/include
 		vmove usr/lib/*.so
