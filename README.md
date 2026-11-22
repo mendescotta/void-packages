@@ -21,12 +21,12 @@
   | Package | Void master | This tree | Upstream | Status |
   |---|---|---|---|---|
   | libwebkit2gtk41 (+ libwebkitgtk60) | 2.50.4 | 2.54.3 | 2.54.3 | built; dropped two obsolete patches, rebased two |
-  | epiphany | 48.5 | 51.2 | 51.3 | built; needs `libpwquality-devel`; 51.3 not taken yet |
+  | epiphany | 48.5 | 51.3 | 51.3 | built; needs `libpwquality-devel` |
   | gnome-remote-desktop | 48.1 | 51.0 | 51.0 | built; elogind lacks `sd_pidfd_get_session`, so a patch reads the pid from fdinfo; adds `mit-krb5-devel` |
   | sushi | 46.0 | 51.2 | 51.2 | built; rewritten for GTK 4, WebKitGTK 6.0, Papers and glycin; old patch dropped |
   | tecla | 50.0 | 51.0 | 51.0 | built |
-  | orca | 48.6 | 48.6 | 51.2 | blocked: 51 needs at-spi2-core 2.58.6 (Void has 2.56.5), and 2.58 replaces at-spi2-atk |
-  | at-spi2-core | 2.56.5 | 2.56.5 | 2.58.9 | not bumped; see orca |
+  | orca | 48.6 | 51.2 | 51.2 | built against at-spi2-core 2.62.1; adds `python3-dasbus`, MathCAT off |
+  | at-spi2-core | 2.56.5 | 2.62.1 | 2.62.1 | built; orca 51 needs >= 2.58.6; no soname change |
   | gnome-builder | 50.0 | 50.0 | 50.0 | as in Void master (LLVM 23) |
   | gtksourceview5, template-glib | 5.22.0, 3.40.0 | same | same | as in Void master |
   | budgie-desktop (+ devel) | 10.9.4 | 10.10.4 | 10.10.4 | built on branch `gnome51-budgie`; not in this branch |

@@ -1,6 +1,6 @@
 # Template file for 'epiphany'
 pkgname=epiphany
-version=51.2
+version=51.3
 revision=1
 build_style=meson
 configure_args="-Dunit_tests=disabled"
@@ -17,4 +17,4 @@ license="GPL-2.0-or-later"
 homepage="https://wiki.gnome.org/Apps/Web"
 changelog="https://gitlab.gnome.org/GNOME/epiphany/-/raw/gnome-51/NEWS"
 distfiles="${GNOME_SITE}/epiphany/${version%%.*}/epiphany-${version}.tar.xz"
-checksum=e45d93483d62beeb26b36b39fe2f8cb5511ffe6ddccc7fedff55b1e3cc0a5c30
+checksum=8b8f4603f051c0cbebba3f394e5410d2c9011f80c9cda156da40d8029e030964
