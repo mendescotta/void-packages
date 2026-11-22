@@ -1,6 +1,6 @@
 # Template file for 'metacity'
 pkgname=metacity
-version=3.52.0
+version=3.58.1
 revision=1
 build_style=gnu-configure
 hostmakedepends="gettext gettext-devel glib-devel itstool pkg-config yelp-tools zenity"
@@ -15,4 +15,4 @@ license="GPL-2.0-or-later"
 homepage="https://gitlab.gnome.org/GNOME/metacity"
 changelog="https://gitlab.gnome.org/GNOME/metacity/-/raw/master/NEWS"
 distfiles="${GNOME_SITE}/${pkgname}/${version%.*}/${pkgname}-${version}.tar.xz"
-checksum=a72438ace6d5903ae79338c6098b1b35ab91c8a97c4323701d3bef1f3eeb191c
+checksum=e430c8a92409ef2f91a4dabd50a71e3d3bbcc474a3dec1caec3813b381d7d1b0
